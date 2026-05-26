@@ -1,0 +1,13 @@
+{
+  "name": "agent-skills",
+  "owner": {
+    "name": "mindbox.cloud"
+  },
+  "plugins": [
+    {
+      "name": "skill-review",
+      "source": "./plugins/skill-review",
+      "description": "Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist."
+    }
+  ]
+}

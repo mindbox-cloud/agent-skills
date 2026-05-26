@@ -1,0 +1,65 @@
+name: Validate plugins
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate marketplace.json and plugin structure
+        run: |
+          set -e
+
+          MARKETPLACE=".claude-plugin/marketplace.json"
+
+          echo "==> Checking marketplace.json is valid JSON"
+          jq empty "$MARKETPLACE"
+          echo "    OK"
+
+          echo "==> Checking each plugin entry"
+          PLUGINS=$(jq -r '.plugins[].source' "$MARKETPLACE")
+
+          for SOURCE in $PLUGINS; do
+            PLUGIN_DIR="${SOURCE#./}"
+            echo ""
+            echo "--- Plugin: $PLUGIN_DIR"
+
+            # Directory exists
+            if [ ! -d "$PLUGIN_DIR" ]; then
+              echo "ERROR: directory not found: $PLUGIN_DIR"
+              exit 1
+            fi
+
+            # plugin.json exists and is valid JSON
+            MANIFEST="$PLUGIN_DIR/.claude-plugin/plugin.json"
+            if [ ! -f "$MANIFEST" ]; then
+              echo "ERROR: missing plugin.json at $MANIFEST"
+              exit 1
+            fi
+            jq empty "$MANIFEST"
+
+            # Required fields in plugin.json
+            for FIELD in name version author; do
+              VALUE=$(jq -r ".$FIELD // empty" "$MANIFEST")
+              if [ -z "$VALUE" ]; then
+                echo "ERROR: missing field '$FIELD' in $MANIFEST"
+                exit 1
+              fi
+            done
+
+            # At least one SKILL.md exists
+            SKILL_COUNT=$(find "$PLUGIN_DIR/skills" -name "SKILL.md" 2>/dev/null | wc -l)
+            if [ "$SKILL_COUNT" -eq 0 ]; then
+              echo "ERROR: no SKILL.md found under $PLUGIN_DIR/skills/"
+              exit 1
+            fi
+
+            echo "    OK (${SKILL_COUNT} skill(s))"
+          done
+
+          echo ""
+          echo "==> All plugins valid"
