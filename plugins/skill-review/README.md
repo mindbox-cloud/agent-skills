@@ -65,7 +65,7 @@ Launched only in a full review (stage 4 or "I don't know").
 
 ```shell
 /plugin marketplace add https://github.com/mindbox-cloud/agent-skills
-/plugin install skill-review@agent-skills
+/plugin install skill-review@mindbox-cloud-plugins
 ```
 
 ## Usage

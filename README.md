@@ -20,7 +20,7 @@ Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=
 
 ```shell
 /plugin marketplace add https://github.com/mindbox-cloud/agent-skills
-/plugin install <plugin-name>@agent-skills
+/plugin install <plugin-name>@mindbox-cloud-plugins
 ```
 
 See each plugin's README for available skills and usage.

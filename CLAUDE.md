@@ -85,7 +85,7 @@ Add an entry to `.claude-plugin/marketplace.json`:
 
 ```json
 {
-  "name": "agent-skills",
+  "name": "mindbox-cloud-plugins",
   "owner": { "name": "mindbox.cloud" },
   "plugins": [
     {
