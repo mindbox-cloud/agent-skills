@@ -24,7 +24,7 @@
 
 > Skip this section for tooling/docs-only changes.
 
-Run `skill-review:skill-review-novice` on the added or modified skill and paste the summary below.
+Run `skill-review:skill-review` on the added or modified skill and paste the summary below.
 
 **Scope used:** Personal / Team / Repository / Full
 

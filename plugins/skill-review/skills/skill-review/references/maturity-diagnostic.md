@@ -19,5 +19,5 @@
 
 - **Stage 2 — Personal skill.** Captures a working path and removes stochastic variance. Sufficient if the skill is only for you.
 - **Stage 3 — Team skill.** A colleague can find, understand, and run it without verbal explanation. The main stage 2 danger is hidden coupling to the author's machine.
-- **Stage 4 — Repository skill.** Owner, version, changelog, place in the ecosystem. The skill outlives its author.
+- **Stage 4 — Repository skill.** Owner, version, changelog, place in the ecosystem. The skill outlives its author. Changelogs and version headers matter here — they track modification history and make continuous support possible without depending on the original author's memory.
 - **Important:** not every skill needs to be stage 4. A personal template is fine at stage 2.

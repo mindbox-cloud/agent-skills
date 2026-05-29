@@ -487,12 +487,12 @@ Three criteria (all simultaneously): (1) Independence, (2) Result-oriented, (3) 
 
 ### Verdicts
 
-- **CLEAN** — the antipattern was **NOT found** (= clean)
-- **WOUNDED** — **partial signs** (= a problem, but not complete); add a 3–4 word note
-- **HIT** — **FOUND** in full (= requires fixing)
+- **NONE** — the antipattern was **NOT found** (= clean)
+- **MINOR** — **partial signs** (= a problem, but not complete); add a 3–4 word note
+- **CRITICAL** — **FOUND** in full (= requires fixing)
 - **NOT_CHECKED** — stage is above scope
 
-> **HIT** = we **found** the antipattern, not "the antipattern was defeated".
+> **CRITICAL** = we **found** the antipattern. This is not a severity grade for impact — it is a fact of detection.
 
 ### Scope Rule
 
@@ -502,13 +502,13 @@ Three criteria (all simultaneously): (1) Independence, (2) Result-oriented, (3) 
 
 ### Evidence Rule
 
-Evaluate **only by observable artifacts**. For `WOUNDED`, the note is short: `triggers too generic`, `path hardcoded`, `reference without map`.
+Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `triggers too generic`, `path hardcoded`, `reference without map`.
 
 ### Antipattern Reference
 
 | # | Antipattern | Stage | Check Reference |
 |:--|:---|:---|:---|
-| 1 | **Monolith** | 2 | ST09, ST13 |
+| 1 | **Huge MD** | 2 | ST09, ST13 |
 | 2 | **Vague triggers / Triggering lottery** | 3 | ST06, ST07 |
 | 3 | **No negative triggers** | 3 | RF01 |
 | 4 | **No examples** | 2 | WF03 |
@@ -516,7 +516,7 @@ Evaluate **only by observable artifacts**. For `WOUNDED`, the note is short: `tr
 | 6 | **Buried critical rules** | 2 | WF14 |
 | 7 | **No error handling** | 2 | WF04 |
 | 8 | **Content duplication** | 3 | RF05 |
-| 9 | **Self-generated skills** | 2 | ST11 |
+| 9 | **AI generated skill** | 2 | ST11 |
 | 10 | **Vibe-coded knowledge core** | 2 | ST12 |
 | 11 | **Skill-prompt** | 2 | ST10 |
 | 12 | **Hardcoded paths** | 3 | WF18 |
@@ -539,7 +539,7 @@ Evaluate **only by observable artifacts**. For `WOUNDED`, the note is short: `tr
 
 | # | Antipattern | Stage | Verdict | Note |
 |:--|:---|:---|:---|:---|
-| 1 | Monolith | 2 | [CLEAN / WOUNDED / HIT / NOT_CHECKED] | [if WOUNDED: 3–4 words, otherwise `—`] |
+| 1 | Huge MD | 2 | [NONE / MINOR / CRITICAL / NOT_CHECKED] | [if MINOR: 3–4 words, otherwise `—`] |
 | 2 | Vague triggers / Triggering lottery | 3 | | |
 | 3 | No negative triggers | 3 | | |
 | 4 | No examples | 2 | | |
@@ -547,7 +547,7 @@ Evaluate **only by observable artifacts**. For `WOUNDED`, the note is short: `tr
 | 6 | Buried critical rules | 2 | | |
 | 7 | No error handling | 2 | | |
 | 8 | Content duplication | 3 | | |
-| 9 | Self-generated skills | 2 | | |
+| 9 | AI generated skill | 2 | | |
 | 10 | Vibe-coded knowledge core | 2 | | |
 | 11 | Skill-prompt | 2 | | |
 | 12 | Hardcoded paths | 3 | | |
@@ -648,7 +648,7 @@ Evaluate **only by observable artifacts**. For `WOUNDED`, the note is short: `tr
 
 [Filled-in table from Part F]
 
-**Total:** [N] HIT, [N] WOUNDED, [N] CLEAN, [N] NOT_CHECKED.
+**Total:** [N] CRITICAL, [N] MINOR, [N] NONE, [N] NOT_CHECKED.
 
 ## Top 3 Recommendations
 

@@ -1,5 +1,5 @@
 ---
-name: skill-review-novice
+name: skill-review
 description: >
   Quick and accessible AI reviewer for Agent Skills — for non-specialists.
   Checks structure, workflow, references, and links. Produces a clear report
@@ -308,7 +308,7 @@ Findings counters are maintained **in total across all checked stages**: total F
 - [grouped by reason, without IDs]: [reason] — [number of checks]
 
 ### Bingo Signals (your antipatterns only)
-- Bingo #N: [CLEAN / WOUNDED / HIT / NOT_CHECKED] — [note]
+- Bingo #N: [NONE / MINOR / CRITICAL / NOT_CHECKED] — [note]
 
 ### Supporting Signals (if you noticed another sub-agent's antipattern)
 - Bingo #N (owner: [sub-agent]): [observation in 1 sentence]

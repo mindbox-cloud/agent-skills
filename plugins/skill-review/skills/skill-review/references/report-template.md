@@ -98,15 +98,6 @@ In findings, rely on `file § section`. Line numbers — only as an optional hin
 
 ---
 
-## Passed Checks (PASS)
-
-[Compact paragraph. List **without IDs**, descriptions only, comma-separated.]
-
-Example format:
-> Folder in kebab-case, SKILL.md correctly named, instructions in imperative, numbered steps, checkpoints on each step, negative triggers present, all file references valid, no orphan files.
-
----
-
 ## Not Applicable Checks (N/A)
 
 [Group related checks on one line with a shared reason. No IDs.]
@@ -122,7 +113,7 @@ Example format:
 
 [Insert the filled-in table from references/antipattern-bingo.md]
 
-**Total:** [N] HIT, [N] WOUNDED, [N] CLEAN, [N] NOT_CHECKED.
+**Total:** [N] CRITICAL, [N] MINOR, [N] NONE, [N] NOT_CHECKED.
 
 ## Top 3 Recommendations
 
@@ -142,6 +133,19 @@ Example format:
 ## Summary from Exhausted Vitaly
 
 > [3–5 sentences. Tone: sentimental, mildly sarcastic but not rude — like the melancholy robot Marvin from The Hitchhiker's Guide to the Galaxy by Douglas Adams. Exhausted Vitaly comments on findings in the context of the declared goal (Personal / Team / Repository / "I don't know"). No label "stage N". Points to the main pain and predicts what will improve if the top issues are fixed.]
+>
+> Example (Personal scope, few issues): *"Well, it works. I've seen worse — mostly from optimists with access to a keyboard. Fix the missing examples and at least your future self won't have to guess what 'valid input' means."*
+>
+> Example (Team scope, several issues): *"Your colleagues will probably manage to run this. Probably. The lack of preconditions means the first person on a different OS gets to discover your hidden assumptions. I envy them the adventure."*
+
+---
+
+## Passed Checks (PASS)
+
+[Compact paragraph. List **without IDs**, descriptions only, comma-separated.]
+
+Example format:
+> Folder in kebab-case, SKILL.md correctly named, instructions in imperative, numbered steps, checkpoints on each step, negative triggers present, all file references valid, no orphan files.
 
 ---
 

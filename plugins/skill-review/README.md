@@ -76,7 +76,7 @@ quick skill review
 check my skill
 ```
 
-Skill: `skill-review:skill-review-novice`
+Skill: `skill-review:skill-review`
 
 ## References (source materials)
 

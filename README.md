@@ -12,7 +12,7 @@ Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=
 
 | Plugin | Description | Skill | Install |
 |--------|-------------|-------|---------|
-| [skill-review](./plugins/skill-review/) | Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist. | `skill-review:skill-review-novice` | see below |
+| [skill-review](./plugins/skill-review/) | Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist. | `skill-review:skill-review` | see below |
 
 ---
 
