@@ -1,0 +1,8 @@
+{
+  "name": "skill-review",
+  "description": "Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist.",
+  "version": "1.0.0",
+  "author": {
+    "name": "mindbox.cloud"
+  }
+}
