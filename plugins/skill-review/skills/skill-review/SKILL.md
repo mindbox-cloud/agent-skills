@@ -32,6 +32,7 @@ metadata:
 |:---|:---|:---|
 | Sub-agent delegation | `Agent`, `Task` or equivalent | Run the review in **single-pass** mode regardless of volume and note this in `Review Limitations` |
 | Task tracking | `TodoWrite` or equivalent | Keep the review plan as a markdown checklist in chat (see `## Mandatory Review Plan`) |
+| Shell command execution | `Bash` or equivalent | Needed only with logging ON, for the timestamp. Ask the user for the current timestamp together with the log path in Step 0 |
 
 > Tool availability differs between clients and models — newer models are shipped without a built-in task-tracking tool. A missing optional tool changes **how** the review is executed; it never cancels the review.
 

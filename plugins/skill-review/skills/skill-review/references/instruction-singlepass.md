@@ -1,6 +1,8 @@
 # Skill Review — Single-pass Mode
 
-> **Activation context:** This mode was activated by the orchestrator because the total volume of the skill under review is < 500 lines. All checks are executed in one context without sub-agents. The set of checks, report format, and Bingo are **identical** to sub-agent mode.
+> **Activation context:** This mode was activated by the orchestrator for one of two reasons: the total volume of the skill under review is < 500 lines, **or** the client provides no sub-agent tool and delegation is impossible at any volume. All checks are executed in one context without sub-agents. The set of checks, report format, and Bingo are **identical** to sub-agent mode.
+>
+> **If the mode was activated for the second reason** (volume `>= 500` lines, no delegation): read the files of the skill under review in parts, by check group, instead of pulling everything into context at once; after each completed Part, keep only the verdicts and drop the raw text; and record in `Review Limitations` that the review ran without delegation because the client has no sub-agent tool.
 
 ---
 
@@ -54,7 +56,8 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
    Part A → Part B → Part C → Part D → [Part E if scope is full]
 3. Fill Antipattern Bingo (Part F)
 4. Generate the final report (Part G)
-5. If logging ON — write report.md; if logging OFF — do not write any files
+5. If logging ON — write report.md (and review-plan.md, if the plan is kept as a chat checklist);
+   if logging OFF — do not write any files
 ```
 
 ---
@@ -215,7 +218,13 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 
 *Context:* In long sessions, the agent easily loses its plan. Anthropic recommends structured note-taking / agentic memory: an explicit task list that maintains state between tool calls.
 
-**Portability of the planning mechanism:** if the skill names a specific client tool (`TodoWrite` and the like) as a hard requirement — is there a fallback for a client that does not provide it? Tool availability differs between clients and models. A preflight that stops the skill over a missing client-specific tool — **FAIL** (the skill does not start at all); a planning instruction with no fallback — **WARNING** (planning silently disappears).
+**Portability of the planning mechanism:** if the skill names a specific client tool (`TodoWrite` and the like), does it survive a client that does not provide it? Tool availability differs between clients and models.
+
+| Signal | Verdict |
+|---|---|
+| Preflight stops the skill because a client-specific tool is missing | FAIL — the skill does not start at all |
+| Planning is tied to one tool, no fallback described | WARNING — planning silently disappears |
+| Planning is described as a capability with a fallback (tool, or checklist in chat, or a file) | PASS |
 
 **WF13.** If planning is used — is there an **enforcement gate**: completion is not allowed while plan items remain open?
 
@@ -309,6 +318,7 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 | Context-refresh: re-reading plan before each phase | WARNING |
 | Strategy for context overflow | INFO (< 10 steps), WARNING (>= 10) |
 | Checkpoints with state capture | WARNING (for critical phases) |
+| Task list as attention management (updated during the work) | INFO |
 
 - **PASS:** explicit context management strategy is present
 - **WARNING:** workflow is long (>= 5 steps), none of the signals above are present
@@ -686,7 +696,7 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 ### Formation Rules
 
 - Do not invent confirmations; do not inflate severity.
-- If the review had limitations (unreadable files, invalid artifact) — the `Review Limitations` section is mandatory.
+- If the review had limitations (unreadable files, invalid artifact, review run without delegation) — the `Review Limitations` section is mandatory.
 - Group findings by stages 2/3/4. Each section has three states: has findings / no issues / not checked.
 - Evidence: `file § section`. Line numbers — only a hint.
 - Top 3 — concrete actions, not abstractions.

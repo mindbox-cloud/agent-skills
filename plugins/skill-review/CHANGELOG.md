@@ -11,6 +11,9 @@
   declared fallbacks (plan as a markdown checklist in chat; single-pass regardless of
   volume when there is no sub-agent tool).
 - Review plan gained an explicit completion gate: no final report while plan items are open.
+- Single-pass mode now knows it can be activated by the absence of a sub-agent tool, not only by
+  volume: it gets a reading strategy for a large skill in one context and an obligation to record
+  the missing delegation in `Review Limitations`.
 - WF12 extended with a portability check of the planning mechanism, WF13 reworded in terms
   of open plan items instead of one tool's status names.
 
