@@ -545,14 +545,14 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 | 18 | **Lifecycle hygiene gap (rot risk)** | 4 | LC03 |
 | 19 | **Silent chain failures** | 2 | WF11 |
 | 20 | **Monolithic reference dump** | 3 | RF06, RF12 |
-| 21 | **Client tool lock-in** | 2 | WF12 |
+| 21 | **Client tool lock-in** | 3 | WF12, WF15 |
 
 ### Notes
 
 - **#15 vs #13:** both use WF22, but #13 is a structural fact (schema copy), #15 is a lifecycle risk (drift).
 - **#16 vs #12:** #12 is mechanical (absolute paths), #16 is broader (coupling to OS, permissions, environment). Do not duplicate the verdict.
 - **#16 in novice mode:** checked partially — only by mechanical portability signals (WF15: preconditions, OS, permissions).
-- **#21 vs #16:** #21 is mechanical — the skill names a tool of one client and describes no way to work without it. `CRITICAL` if a precondition stops the skill over the missing tool; `MINOR` if the tool is merely assumed. #16 is the broader pattern; do not duplicate the verdict.
+- **#21 vs #16:** #21 is mechanical — the skill names a tool of one client and describes no way to work without it. `CRITICAL` if a precondition stops the skill over the missing tool; `MINOR` if the tool is merely assumed. Both use WF15, so split by signal: a named client tool goes to #21, everything else to #16.
 
 ### Bingo Table for Report
 
@@ -578,7 +578,7 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 | 18 | Lifecycle hygiene gap (rot risk) | 4 | | |
 | 19 | Silent chain failures | 2 | | |
 | 20 | Monolithic reference dump | 3 | | |
-| 21 | Client tool lock-in | 2 | | |
+| 21 | Client tool lock-in | 3 | | |
 
 ---
 

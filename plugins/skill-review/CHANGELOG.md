@@ -19,8 +19,9 @@
 
 ### Added
 
-- Antipattern Bingo #21 "Client tool lock-in" (stage 2, WF12, owner Workflow) — the skill names
-  a tool of one client and describes no way to work without it.
+- Antipattern Bingo #21 "Client tool lock-in" (stage 3, WF12 + WF15, owner Workflow) — the skill
+  names a tool of one client and describes no way to work without it. WF15 is the second anchor
+  so the row still fires on a skill too short for WF12 to apply.
 
 ### Fixed
 
