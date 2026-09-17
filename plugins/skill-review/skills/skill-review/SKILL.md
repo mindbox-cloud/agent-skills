@@ -26,29 +26,22 @@ metadata:
 ## Preconditions
 
 1. Before Step 0, check that you can **read the files** of the skill under review. If read access is unavailable — stop and report what is lacking.
-2. Check which optional client capabilities you have and record the result — **neither is a hard requirement**, each has a fallback:
+2. If the user selects logging **ON** in Step 0, verify file write capability. If write is unavailable — stop and suggest disabling logging.
 
-| Capability | Tool names across clients | If unavailable |
-|:---|:---|:---|
-| Sub-agent delegation | `Agent`, `Task` or equivalent | Run the review in **single-pass** mode regardless of volume and note this in `Review Limitations` |
-| Task tracking | `TodoWrite` or equivalent | Keep the review plan as a markdown checklist in chat (see `## Mandatory Review Plan`) |
-| Shell command execution | `Bash` or equivalent | Needed only with logging ON, for the timestamp. Ask the user for the current timestamp together with the log path in Step 0 |
-
-> Tool availability differs between clients and models — newer models are shipped without a built-in task-tracking tool. A missing optional tool changes **how** the review is executed; it never cancels the review.
-
-3. If the user selects logging **ON** in Step 0, verify file write capability. If write is unavailable — stop and suggest disabling logging.
+> Do not gate the review on the presence of a named client tool. Planning always works (see `## Mandatory Review Plan`); a missing sub-agent tool only changes the execution mode (see `## Execution Mode Selection`).
 
 ---
 
 ## CRITICAL — Mandatory Rules
 
 - **Questions to the user — only in Step 0**. Mandatory question: context of use + logging. Ask for log path confirmation **only if** the user enabled logging.
-- **A review plan is MANDATORY** from the very start of the review. Keep it in the client's task-tracking tool if there is one; otherwise as a markdown checklist in chat. The absence of such a tool is never a reason to skip planning.
+- **A review plan is MANDATORY** from the very start of the review — as a markdown checklist in the chat.
 - The plan must cover the full review scope. For every 3–4 check items there should be a separate plan item. Do not create one giant item for the entire review.
-- Update statuses as the review progresses: `pending` → `in_progress` → `completed` in the tool, or `[ ]` → `[~]` → `[x]` in the chat checklist.
+- Check items off (`[ ]` → `[x]`) as they close and repost the updated checklist at every phase boundary.
+- **Do not produce the final report while any plan item is still open.**
 - If the folder is not a valid skill directory (no `SKILL.md`) or contains more than one skill — see `## Troubleshooting`, problem 1. Do not abort the check silently.
 - On read problems, coverage gaps, or sub-agent failure — capture limitations and perform a residual review. On write problems with `logs=on` — notify the user and stop the review.
-- In sub-agent mode (`>= 500` lines), the orchestrator must delegate checklist checks to sub-agents via the client's sub-agent tool (`Agent`, `Task` or equivalent). Running a full review in the main context instead of launching sub-agents is a workflow violation — unless the client has no sub-agent tool at all (see `## Preconditions`). Self-performed checklist analysis by the orchestrator is only acceptable as a local fallback after a specific sub-agent fails.
+- In sub-agent mode (`>= 500` lines), the orchestrator must delegate checklist checks to sub-agents. Running a full review in the main context instead of launching sub-agents is a workflow violation — unless the client provides no sub-agent tool at all (see `## Execution Mode Selection`). Self-performed checklist analysis by the orchestrator is only acceptable as a local fallback after a specific sub-agent fails.
 - **Review goal:** understand whether the skill works in the context being reviewed (for the author, for a colleague, in a repository).
 - **Novice does not compute a maturity stage.** Scope is determined by the user's choice. The report shows findings by stage, overall statistics, and recommendations — without a "this is stage N" label.
 - **Language:** conduct the entire review (report, logs, review plan, sub-agent briefs) in the language the user started the conversation in.
@@ -115,23 +108,25 @@ The orchestrator captures **two distinct entities**:
 
 ## Mandatory Review Plan
 
-Create a preliminary plan immediately after the user's response and refine it after collecting the manifest and choosing the mode. Break the review into blocks so that one plan item covers approximately 3–4 checks, not the entire document. Update statuses as work proceeds.
+Create a preliminary plan immediately after the user's response, before the first check.
 
-**Where the plan lives:**
+**Copy this checklist into your response and check items off as you complete them:**
 
-| Client capability | Where the plan lives | How statuses are updated |
-|:---|:---|:---|
-| Task-tracking tool available | In the tool | `pending` → `in_progress` → `completed` |
-| No task-tracking tool | Markdown checklist in chat: publish it before the first check | `[ ]` → `[~]` → `[x]`, repost the updated checklist at every phase boundary |
-| No task-tracking tool, logging ON | Same chat checklist, additionally saved as `review-plan.md` in the results folder | Rewrite the file after every completed block |
+```text
+Review plan:
+- [ ] Collect the manifest, count the total volume, choose the execution mode
+- [ ] Structure checks (ST01–ST16)
+- [ ] Workflow checks (WF01–WF29)
+- [ ] References checks (RF01–RF15)
+- [ ] Link checks (LK01–LK07)
+- [ ] Lifecycle checks (LC01–LC05)
+- [ ] Antipattern Bingo
+- [ ] Final report
+```
+
+Refine it once the manifest is collected and the mode is chosen: drop the groups that lie outside the selected scope, and split any group covering more than 3–4 checks into separate items. Repost the updated checklist at every phase boundary.
 
 **Completion gate:** do not produce the final report while any plan item is still open. An item is closed either by a verdict or by an explicit entry in `Review Limitations`.
-
-**Example of a good breakdown:**
-```text
-- Check folder structure, SKILL.md presence, directory validity
-- Check frontmatter: name, trigger phrases, safety
-```
 
 ---
 
@@ -144,6 +139,7 @@ Create a preliminary plan immediately after the user's response and refine it af
    3a. Check file write
    3b. Get timestamp from command line (date +%Y%m%d-%H%M or equivalent)
    3c. Show user the full path to the results folder, await confirmation
+   3d. Create the confirmed results folder: {skill-name}-review-{YYYYMMDD-HHMM}/
 4. Create the preliminary review plan (see "Mandatory Review Plan")
 5. Collect the manifest of the skill under review: file list, sizes, line counts, frontmatter,
    presence of references/, scripts/, assets/. The goal of this step is routing and passing to
@@ -158,19 +154,18 @@ Create a preliminary plan immediately after the user's response and refine it af
    9d. If logging ON — write report.md to the confirmed folder
 10. IF SUB-AGENT (>= 500 lines):
    10a. Refine the review plan for sub-agent review
-   10b. If logging ON — create the results folder: {skill-name}-review-{YYYYMMDD-HHMM}/
-   10c. Using the "scope → sub-agents" matrix, determine which sub-agents to launch
-   10d. Launch the required sub-agents; pass scope and checklist mapping to each.
-        Each selected sub-agent is launched as a separate call of the sub-agent tool.
+   10b. Using the "scope → sub-agents" matrix, determine which sub-agents to launch
+   10c. Launch the required sub-agents; pass scope and checklist mapping to each.
+        Each selected sub-agent is launched as a separate sub-agent call.
         Do not combine multiple sub-agents in one prompt.
         Parallel launch of multiple separate sub-agent calls is allowed.
-   10e. Collect condensed summaries (and temp_log_path if direct log write to the output folder failed)
-   10f. Run the verification gate:
+   10d. Collect condensed summaries (and temp_log_path if direct log write to the output folder failed)
+   10e. Run the verification gate:
         - Count total FAIL / WARNING across all summaries.
         - Verify that every FAIL / WARNING from every summary entered the working findings list.
         - Log sub-agents not launched due to scope: "[sub-agent] — not launched: all checks outside selected scope".
         - Capture cross-signals between summaries if they require a note in the final report.
-   10g. If logging ON — move fallback logs to the output folder
+   10f. If logging ON — move fallback logs to the output folder
 11. Fill in "Antipattern Bingo" per references/antipattern-bingo.md. This file may be read early
     to distribute Bingo assignments, but fill the final table only after receiving summaries.
 12. After receiving summaries, generate the final report with findings grouped by stage
@@ -307,7 +302,7 @@ Findings counters are maintained **in total across all checked stages**: total F
    > - Antipatterns above the current scope — mark `NOT_CHECKED`.
    > - After reading, work strictly according to the checklist, scope, base rules, and bingo file.
 
-3. **Logging (if enabled in Step 0):** The orchestrator creates the folder `{skill-name}-review-{YYYYMMDD-HHMM}/`. The sub-agent first tries to write `log-{subagent}.md` directly to the output folder. If that fails — writes the log to a temporary file and returns `temp_log_path`, and the orchestrator moves such a log to the output folder. Do not request additional permissions from the user. **If logging is off:** sub-agents return only a condensed summary. No files or folders are created. File write capability is checked before the review starts.
+3. **Logging (if enabled in Step 0):** The orchestrator has already created the folder `{skill-name}-review-{YYYYMMDD-HHMM}/` in Step 0. The sub-agent first tries to write `log-{subagent}.md` directly to the output folder. If that fails — writes the log to a temporary file and returns `temp_log_path`, and the orchestrator moves such a log to the output folder. Do not request additional permissions from the user. **If logging is off:** sub-agents return only a condensed summary. No files or folders are created. File write capability is checked before the review starts.
 4. **Sub-agents return condensed summaries** to the orchestrator. A summary is the distillation of the review; when log fallback applies, `temp_log_path` is added.
 
 ---

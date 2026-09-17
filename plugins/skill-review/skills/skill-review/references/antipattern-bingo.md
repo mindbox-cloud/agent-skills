@@ -68,7 +68,7 @@ For **each** antipattern, choose one of four verdicts:
 
 - **#15 Schema drift risk** vs **#13 Mirroring MCP schema**: both use WF22, but differently. #13 is a structural fact (a schema copy lives in SKILL.md). #15 is a lifecycle risk (the schema version is not pinned, drift is not tracked).
 - **#16 Context overfitting** vs **#12 Hardcoded paths**: #12 is a concrete mechanical signal (absolute paths). #16 is a broader pattern (coupling to OS, permissions, environment, implicit requirements). If the only signal is hardcoded paths, do not duplicate the verdict.
-- **#21 Client tool lock-in**: the skill is tied to a concrete tool of one client (`TodoWrite`, `Task` and the like) with no fallback for a client that does not provide it. `CRITICAL` if a preflight stops the skill over the missing tool; `MINOR` if the skill merely assumes the tool without a fallback. Tool availability differs between clients and models — a tool present today may be absent in the next model.
+- **#21 Client tool lock-in** vs **#16 Context overfitting**: #21 is a mechanical signal — the skill names a tool of one client (for planning, delegation, or anything else) and describes no way to work without it. `CRITICAL` if a precondition stops the skill over the missing tool; `MINOR` if the tool is merely assumed. #16 is the broader pattern. If the only signal is a named tool, do not duplicate the verdict.
 - **#16 in novice mode:** checked **partially** — only by mechanical portability signals (WF15: preconditions, OS, permissions, packages). Deep overfitting analysis (IN09–IN14: hidden assumptions, self-sufficiency, implicit knowledge) is only available in skill-review-nightmare with a full Intern walkthrough.
 
 ---

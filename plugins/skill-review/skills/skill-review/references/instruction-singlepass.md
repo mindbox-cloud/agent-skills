@@ -2,7 +2,7 @@
 
 > **Activation context:** This mode was activated by the orchestrator for one of two reasons: the total volume of the skill under review is < 500 lines, **or** the client provides no sub-agent tool and delegation is impossible at any volume. All checks are executed in one context without sub-agents. The set of checks, report format, and Bingo are **identical** to sub-agent mode.
 >
-> **If the mode was activated for the second reason** (volume `>= 500` lines, no delegation): read the files of the skill under review in parts, by check group, instead of pulling everything into context at once; after each completed Part, keep only the verdicts and drop the raw text; and record in `Review Limitations` that the review ran without delegation because the client has no sub-agent tool.
+> **If the mode was activated for the second reason** (volume `>= 500` lines): read the files of the skill under review per check group rather than all at once, do not re-read a file once its group is closed, write each verdict down as soon as you reach it, and record in `Review Limitations` that the review ran in one context without delegation.
 
 ---
 
@@ -11,15 +11,14 @@
 > This mode assumes the orchestrator has already run the preflight of the parent skill.
 
 - **File read access is required.** If it is unexpectedly unavailable, do not start the review and immediately notify the user that single-pass cannot start in the current client.
-- If the parent orchestrator enabled logging, file write is additionally required.
-- A task-tracking tool (`TodoWrite` or equivalent) is **optional**. If the client does not provide one — keep the review plan as a markdown checklist in chat. This is not a reason to stop.
+- If the parent orchestrator enabled logging, file write is additionally required. If it is unavailable — notify the user and stop the review.
 
 ---
 
 ## Mandatory Rules
 
 - **No questions to the user.** Review parameters (scope, declared target, logging) were already determined by the orchestrator in Step 0.
-- Create a **review plan**: one item per 3–4 checks. Use the client's task-tracking tool if there is one; otherwise publish the plan as a markdown checklist in chat and repost it updated at every phase boundary. Do not produce the final report while any plan item is still open.
+- Create a **review plan** as a markdown checklist in the chat (see `## Algorithm`): publish it before the first check and repost it updated at every phase boundary. Do not produce the final report while any plan item is still open.
 - Evaluate **only by observable artifacts** — do not infer what is not present in the files.
 - Do not count as PASS any runs, stability, or lifecycle maturity without file confirmation.
 - If a section is not applicable (no `references/`, `scripts/`, MCP, sub-agents) — mark **N/A**, not FAIL.
@@ -56,9 +55,23 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
    Part A → Part B → Part C → Part D → [Part E if scope is full]
 3. Fill Antipattern Bingo (Part F)
 4. Generate the final report (Part G)
-5. If logging ON — write report.md (and review-plan.md, if the plan is kept as a chat checklist);
-   if logging OFF — do not write any files
+5. If logging ON — write report.md; if logging OFF — do not write any files
 ```
+
+**Step 1 — copy this checklist into your response and check items off as you complete them:**
+
+```text
+Review plan:
+- [ ] Part A — Structure and Form (ST01–ST16)
+- [ ] Part B — Workflow (WF01–WF29)
+- [ ] Part C — References and Progressive Disclosure (RF01–RF15)
+- [ ] Part D — Link Integrity (LK01–LK07)
+- [ ] Part E — Ownership and Lifecycle (LC01–LC05)
+- [ ] Part F — Antipattern Bingo
+- [ ] Part G — Report Format
+```
+
+Drop the Parts that lie outside the selected scope, and split any Part covering more than 3–4 checks into separate items.
 
 ---
 
@@ -214,21 +227,13 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 
 *Context:* Without checkpoints, the agent continues the workflow on a silent step failure — "silent chain failures". A good skill does not just list steps — it sets conditions: what must be true before proceeding.
 
-**WF12.** If the workflow has > 4 steps — is there a **planning mechanism**: a task-tracking tool, task list, or external planning artifact?
+**WF12.** If the workflow has > 4 steps — is there a **planning mechanism** — a task list, a checklist in the response, or an external planning artifact — that does not depend on a tool being present in a particular client?
 
-*Context:* In long sessions, the agent easily loses its plan. Anthropic recommends structured note-taking / agentic memory: an explicit task list that maintains state between tool calls.
-
-**Portability of the planning mechanism:** if the skill names a specific client tool (`TodoWrite` and the like), does it survive a client that does not provide it? Tool availability differs between clients and models.
-
-| Signal | Verdict |
-|---|---|
-| Preflight stops the skill because a client-specific tool is missing | FAIL — the skill does not start at all |
-| Planning is tied to one tool, no fallback described | WARNING — planning silently disappears |
-| Planning is described as a capability with a fallback (tool, or checklist in chat, or a file) | PASS |
+*Context:* In long sessions, the agent easily loses its plan. Anthropic recommends structured note-taking / agentic memory: an explicit task list that maintains state between tool calls. Tool availability differs between clients and model versions, so a plan that exists only inside one named tool disappears where that tool is not offered — and a precondition that stops the skill over a missing tool is worse than having no plan at all.
 
 **WF13.** If planning is used — is there an **enforcement gate**: completion is not allowed while plan items remain open?
 
-*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the plan remains decorative and does not prevent context loss. The gate must be worded in terms of open plan items, not in terms of one tool's status names — otherwise it evaporates in a client without that tool.
+*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the plan remains decorative and does not prevent context loss. The gate must be worded in terms of open plan items, not in terms of one tool's status names.
 
 **WF14.** Are critical rules and prohibitions at the beginning of the skill or under `CRITICAL` headers, not buried in the middle?
 
@@ -547,7 +552,7 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 - **#15 vs #13:** both use WF22, but #13 is a structural fact (schema copy), #15 is a lifecycle risk (drift).
 - **#16 vs #12:** #12 is mechanical (absolute paths), #16 is broader (coupling to OS, permissions, environment). Do not duplicate the verdict.
 - **#16 in novice mode:** checked partially — only by mechanical portability signals (WF15: preconditions, OS, permissions).
-- **#21 Client tool lock-in:** the skill is tied to a concrete tool of one client (`TodoWrite`, `Task` and the like) with no fallback. `CRITICAL` if a preflight stops the skill over the missing tool; `MINOR` if the tool is merely assumed without a fallback.
+- **#21 vs #16:** #21 is mechanical — the skill names a tool of one client and describes no way to work without it. `CRITICAL` if a precondition stops the skill over the missing tool; `MINOR` if the tool is merely assumed. #16 is the broader pattern; do not duplicate the verdict.
 
 ### Bingo Table for Report
 
@@ -603,7 +608,7 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 
 ## Review Limitations
 
-[Optional section. Show only if there were execution degradations: unreadable files, log write failure, context overflow, partially restricted scope.]
+[Optional section. Show only if there were execution degradations: unreadable files, log write failure, context overflow, review run without delegation, partially restricted scope.]
 
 > - [What went wrong]
 > - [How it affected completeness]
