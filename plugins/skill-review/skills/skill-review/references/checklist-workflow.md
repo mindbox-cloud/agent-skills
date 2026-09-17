@@ -51,13 +51,21 @@
 
 *Context:* Without checkpoints, the agent continues the workflow on a silent step failure — this is "silent chain failures". A good skill does not just list steps — it sets conditions: what must be true before proceeding.
 
-**WF12** If the workflow is longer than **4 steps** — do the instructions explicitly declare a **planning tool**, task list, or external planning artifact?
+**WF12** If the workflow is longer than **4 steps** — do the instructions explicitly declare a **planning mechanism**: a task-tracking tool, a task list, or an external planning artifact?
 
 *Context:* In long sessions, the agent easily loses its plan and starts jumping between tasks. Anthropic recommends structured note-taking / agentic memory: an explicit task list that maintains state between tool calls.
 
-**WF13** If planning is used, is there an **enforcement gate**: completion is not allowed while there are `pending` or `in_progress` tasks?
+**Additional check — portability of the planning mechanism.** If the skill names a concrete client tool (`TodoWrite` and the like), does it survive a client that does not provide that tool? Tool availability differs between clients and models: a tool present today may be absent in the next model.
 
-*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the TODO list remains decorative and does not prevent context loss.
+| Signal | Verdict |
+|---|---|
+| Preflight stops the skill because a client-specific tool is missing | FAIL — the skill does not start at all |
+| Planning is tied to one tool, no fallback described | WARNING — planning silently disappears |
+| Planning is described as a capability with a fallback (tool, or checklist in chat, or a file) | PASS |
+
+**WF13** If planning is used, is there an **enforcement gate**: completion is not allowed while plan items remain open?
+
+*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the plan remains decorative and does not prevent context loss. The gate must be worded in terms of open plan items, not in terms of the status names of one specific tool — otherwise it evaporates in a client without that tool.
 
 **WF14** Are critical rules, prohibitions, and stop conditions at the beginning of the skill or under explicit `CRITICAL` headers, not buried in the middle of a long text?
 
@@ -149,7 +157,7 @@
 
 > **Stage: 2** | Axis: personal use (if workflow is multi-step with multiple tools / co-skills)
 
-**WF27** If the workflow passes through several tools / co-skills, is there an external planning artifact or TODO list that survives the handoff between steps?
+**WF27** If the workflow passes through several tools / co-skills, is there an external planning artifact or task list that survives the handoff between steps?
 
 *Context:* In a multi-skill environment, task state is most often lost precisely at transitions between steps and tools. An external planning artifact maintains dependent steps, execution status, and blockers that would otherwise dissolve into the thread history.
 
@@ -173,7 +181,7 @@
 | Context-refresh: re-reading the plan before each new phase | WARNING |
 | Strategy for context overflow (compaction, sub-agent, respawn) | INFO (if < 10 steps), WARNING (if >= 10) |
 | Checkpoints with state capture | WARNING (for critical phases) |
-| TODO list as attention management (updated during the work) | INFO |
+| Task list as attention management (updated during the work) | INFO |
 
 **Scale:**
 - **PASS:** there is an explicit context management strategy (files, checkpoints, refresh)

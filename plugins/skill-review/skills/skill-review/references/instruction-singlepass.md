@@ -8,16 +8,16 @@
 
 > This mode assumes the orchestrator has already run the preflight of the parent skill.
 
-- `TodoWrite` and file access are expected to be available.
+- **File read access is required.** If it is unexpectedly unavailable, do not start the review and immediately notify the user that single-pass cannot start in the current client.
 - If the parent orchestrator enabled logging, file write is additionally required.
-- If any of these capabilities is unexpectedly unavailable, do not start the review and immediately notify the user that single-pass cannot start in the current client.
+- A task-tracking tool (`TodoWrite` or equivalent) is **optional**. If the client does not provide one — keep the review plan as a markdown checklist in chat. This is not a reason to stop.
 
 ---
 
 ## Mandatory Rules
 
 - **No questions to the user.** Review parameters (scope, declared target, logging) were already determined by the orchestrator in Step 0.
-- Create a **TODO plan** for the review: one TODO item per 3–4 checks.
+- Create a **review plan**: one item per 3–4 checks. Use the client's task-tracking tool if there is one; otherwise publish the plan as a markdown checklist in chat and repost it updated at every phase boundary. Do not produce the final report while any plan item is still open.
 - Evaluate **only by observable artifacts** — do not infer what is not present in the files.
 - Do not count as PASS any runs, stability, or lifecycle maturity without file confirmation.
 - If a section is not applicable (no `references/`, `scripts/`, MCP, sub-agents) — mark **N/A**, not FAIL.
@@ -49,7 +49,7 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 ## Algorithm
 
 ```text
-1. Create the TODO plan for the review (compact, no sub-agents)
+1. Create the review plan (compact, no sub-agents)
 2. Sequentially run all checks by scope:
    Part A → Part B → Part C → Part D → [Part E if scope is full]
 3. Fill Antipattern Bingo (Part F)
@@ -211,13 +211,15 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 
 *Context:* Without checkpoints, the agent continues the workflow on a silent step failure — "silent chain failures". A good skill does not just list steps — it sets conditions: what must be true before proceeding.
 
-**WF12.** If the workflow has > 4 steps — is there a **planning tool**, task list, or external planning artifact?
+**WF12.** If the workflow has > 4 steps — is there a **planning mechanism**: a task-tracking tool, task list, or external planning artifact?
 
 *Context:* In long sessions, the agent easily loses its plan. Anthropic recommends structured note-taking / agentic memory: an explicit task list that maintains state between tool calls.
 
-**WF13.** If planning is used — is there an **enforcement gate**: completion is not allowed while there are `pending`/`in_progress` tasks?
+**Portability of the planning mechanism:** if the skill names a specific client tool (`TodoWrite` and the like) as a hard requirement — is there a fallback for a client that does not provide it? Tool availability differs between clients and models. A preflight that stops the skill over a missing client-specific tool — **FAIL** (the skill does not start at all); a planning instruction with no fallback — **WARNING** (planning silently disappears).
 
-*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the TODO list remains decorative and does not prevent context loss.
+**WF13.** If planning is used — is there an **enforcement gate**: completion is not allowed while plan items remain open?
+
+*Context:* The most effective way to make planning mandatory is to prohibit completion with unclosed tasks. Otherwise the plan remains decorative and does not prevent context loss. The gate must be worded in terms of open plan items, not in terms of one tool's status names — otherwise it evaporates in a client without that tool.
 
 **WF14.** Are critical rules and prohibitions at the beginning of the skill or under `CRITICAL` headers, not buried in the middle?
 
@@ -289,7 +291,7 @@ Checks outside scope are marked **"not checked for selected scope"** (not N/A an
 
 *Context:* Checkpoints matter not only within a single skill (WF11), but also at handoffs between tools and co-skills. Task state is most often lost at these transitions.
 
-**WF27.** If the workflow passes through several tools / co-skills — is there an **external planning artifact / TODO** that survives the handoff?
+**WF27.** If the workflow passes through several tools / co-skills — is there an **external planning artifact / task list** that survives the handoff?
 
 *Context:* An external planning artifact maintains dependent steps, execution status, and blockers that would otherwise dissolve into the thread history.
 
@@ -528,12 +530,14 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 | 18 | **Lifecycle hygiene gap (rot risk)** | 4 | LC03 |
 | 19 | **Silent chain failures** | 2 | WF11 |
 | 20 | **Monolithic reference dump** | 3 | RF06, RF12 |
+| 21 | **Client tool lock-in** | 2 | WF12 |
 
 ### Notes
 
 - **#15 vs #13:** both use WF22, but #13 is a structural fact (schema copy), #15 is a lifecycle risk (drift).
 - **#16 vs #12:** #12 is mechanical (absolute paths), #16 is broader (coupling to OS, permissions, environment). Do not duplicate the verdict.
 - **#16 in novice mode:** checked partially — only by mechanical portability signals (WF15: preconditions, OS, permissions).
+- **#21 Client tool lock-in:** the skill is tied to a concrete tool of one client (`TodoWrite`, `Task` and the like) with no fallback. `CRITICAL` if a preflight stops the skill over the missing tool; `MINOR` if the tool is merely assumed without a fallback.
 
 ### Bingo Table for Report
 
@@ -559,6 +563,7 @@ Evaluate **only by observable artifacts**. For `MINOR`, the note is short: `trig
 | 18 | Lifecycle hygiene gap (rot risk) | 4 | | |
 | 19 | Silent chain failures | 2 | | |
 | 20 | Monolithic reference dump | 3 | | |
+| 21 | Client tool lock-in | 2 | | |
 
 ---
 

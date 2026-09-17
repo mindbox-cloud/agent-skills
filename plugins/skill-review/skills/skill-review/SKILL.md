@@ -12,7 +12,7 @@ description: >
   user asks to create a new skill, to review code,
   user asks to review a prompt that is not a skill.
 metadata:
-  version: 1.6.0
+  version: 1.7.0
 ---
 
 # Skill Review Novice — Autonomous Instruction for the Chat Agent
@@ -25,23 +25,32 @@ metadata:
 
 ## Preconditions
 
-1. Before Step 0, check `Task`, `TodoWrite`, and file access for the skill. If anything is missing — stop and report what is lacking.
-2. If the user selects logging **ON** in Step 0, verify file write capability. If write is unavailable — stop and suggest disabling logging.
+1. Before Step 0, check that you can **read the files** of the skill under review. If read access is unavailable — stop and report what is lacking.
+2. Check which optional client capabilities you have and record the result — **neither is a hard requirement**, each has a fallback:
+
+| Capability | Tool names across clients | If unavailable |
+|:---|:---|:---|
+| Sub-agent delegation | `Agent`, `Task` or equivalent | Run the review in **single-pass** mode regardless of volume and note this in `Review Limitations` |
+| Task tracking | `TodoWrite` or equivalent | Keep the review plan as a markdown checklist in chat (see `## Mandatory Review Plan`) |
+
+> Tool availability differs between clients and models — newer models are shipped without a built-in task-tracking tool. A missing optional tool changes **how** the review is executed; it never cancels the review.
+
+3. If the user selects logging **ON** in Step 0, verify file write capability. If write is unavailable — stop and suggest disabling logging.
 
 ---
 
 ## CRITICAL — Mandatory Rules
 
 - **Questions to the user — only in Step 0**. Mandatory question: context of use + logging. Ask for log path confirmation **only if** the user enabled logging.
-- **A TODO plan is MANDATORY** from the very start of the review.
-- The TODO plan must cover the full review scope. For every 3–4 check items there should be a separate TODO item. Do not create one giant TODO for the entire review.
-- Update statuses as the review progresses: `pending` → `in_progress` → `completed`.
+- **A review plan is MANDATORY** from the very start of the review. Keep it in the client's task-tracking tool if there is one; otherwise as a markdown checklist in chat. The absence of such a tool is never a reason to skip planning.
+- The plan must cover the full review scope. For every 3–4 check items there should be a separate plan item. Do not create one giant item for the entire review.
+- Update statuses as the review progresses: `pending` → `in_progress` → `completed` in the tool, or `[ ]` → `[~]` → `[x]` in the chat checklist.
 - If the folder is not a valid skill directory (no `SKILL.md`) or contains more than one skill — see `## Troubleshooting`, problem 1. Do not abort the check silently.
 - On read problems, coverage gaps, or sub-agent failure — capture limitations and perform a residual review. On write problems with `logs=on` — notify the user and stop the review.
-- In sub-agent mode (`>= 500` lines), the orchestrator must delegate checklist checks to sub-agents via `Task`. Running a full review in the main context instead of launching sub-agents is a workflow violation. Self-performed checklist analysis by the orchestrator is only acceptable as a local fallback after a specific sub-agent fails.
+- In sub-agent mode (`>= 500` lines), the orchestrator must delegate checklist checks to sub-agents via the client's sub-agent tool (`Agent`, `Task` or equivalent). Running a full review in the main context instead of launching sub-agents is a workflow violation — unless the client has no sub-agent tool at all (see `## Preconditions`). Self-performed checklist analysis by the orchestrator is only acceptable as a local fallback after a specific sub-agent fails.
 - **Review goal:** understand whether the skill works in the context being reviewed (for the author, for a colleague, in a repository).
 - **Novice does not compute a maturity stage.** Scope is determined by the user's choice. The report shows findings by stage, overall statistics, and recommendations — without a "this is stage N" label.
-- **Language:** conduct the entire review (report, logs, TODO, sub-agent briefs) in the language the user started the conversation in.
+- **Language:** conduct the entire review (report, logs, review plan, sub-agent briefs) in the language the user started the conversation in.
 - **Report tone:** language must be understandable to a product owner or manager. Avoid technical checklist jargon. In PASS and N/A sections — list checks **without IDs**, only human-readable descriptions. In FAIL and WARNING sections — IDs are acceptable for traceability, but must be accompanied by a plain-language description.
 
 ---
@@ -103,9 +112,19 @@ The orchestrator captures **two distinct entities**:
 
 ---
 
-## Mandatory TODO Plan
+## Mandatory Review Plan
 
-Create a preliminary TODO immediately after the user's response and refine it after collecting the manifest and choosing the mode. Break the review into blocks so that one TODO covers approximately 3–4 checks, not the entire document. Update statuses as work proceeds.
+Create a preliminary plan immediately after the user's response and refine it after collecting the manifest and choosing the mode. Break the review into blocks so that one plan item covers approximately 3–4 checks, not the entire document. Update statuses as work proceeds.
+
+**Where the plan lives:**
+
+| Client capability | Where the plan lives | How statuses are updated |
+|:---|:---|:---|
+| Task-tracking tool available | In the tool | `pending` → `in_progress` → `completed` |
+| No task-tracking tool | Markdown checklist in chat: publish it before the first check | `[ ]` → `[~]` → `[x]`, repost the updated checklist at every phase boundary |
+| No task-tracking tool, logging ON | Same chat checklist, additionally saved as `review-plan.md` in the results folder | Rewrite the file after every completed block |
+
+**Completion gate:** do not produce the final report while any plan item is still open. An item is closed either by a verdict or by an explicit entry in `Review Limitations`.
 
 **Example of a good breakdown:**
 ```text
@@ -124,7 +143,7 @@ Create a preliminary TODO immediately after the user's response and refine it af
    3a. Check file write
    3b. Get timestamp from command line (date +%Y%m%d-%H%M or equivalent)
    3c. Show user the full path to the results folder, await confirmation
-4. Create the preliminary TODO plan for the review
+4. Create the preliminary review plan (see "Mandatory Review Plan")
 5. Collect the manifest of the skill under review: file list, sizes, line counts, frontmatter,
    presence of references/, scripts/, assets/. The goal of this step is routing and passing to
    sub-agents; do not perform checklist content analysis at this step.
@@ -132,18 +151,18 @@ Create a preliminary TODO immediately after the user's response and refine it af
 7. Count the total lines of all readable files in the skill under review
 8. Choose the mode based on the threshold (see "Execution Mode Selection")
 9. IF SINGLE-PASS (< 500 lines):
-   9a. Refine the TODO plan for compact single-pass review
+   9a. Refine the review plan for compact single-pass review
    9b. Read references/instruction-singlepass.md
    9c. Execute the entire review sequentially in the main context
    9d. If logging ON — write report.md to the confirmed folder
 10. IF SUB-AGENT (>= 500 lines):
-   10a. Refine the TODO plan for sub-agent review
+   10a. Refine the review plan for sub-agent review
    10b. If logging ON — create the results folder: {skill-name}-review-{YYYYMMDD-HHMM}/
    10c. Using the "scope → sub-agents" matrix, determine which sub-agents to launch
    10d. Launch the required sub-agents; pass scope and checklist mapping to each.
-        Each selected sub-agent is launched as a separate Task call.
+        Each selected sub-agent is launched as a separate call of the sub-agent tool.
         Do not combine multiple sub-agents in one prompt.
-        Parallel launch of multiple separate Task calls is allowed.
+        Parallel launch of multiple separate sub-agent calls is allowed.
    10e. Collect condensed summaries (and temp_log_path if direct log write to the output folder failed)
    10f. Run the verification gate:
         - Count total FAIL / WARNING across all summaries.
@@ -211,6 +230,8 @@ After collecting the manifest, count the total number of lines **in all files of
 |:---|:---|:---|
 | **< 500 lines** | **Single-pass** | Read `references/instruction-singlepass.md` and run the entire review in the main context, without sub-agents |
 | **>= 500 lines** | **Sub-agent** | Launch sub-agents per the scope matrix (logic below) |
+
+> If the client provides no sub-agent tool, run single-pass regardless of volume: read `references/instruction-singlepass.md`, execute the checks sequentially in the main context, and record in `Review Limitations` that the review ran without delegation.
 
 ---
 

@@ -60,6 +60,7 @@ For **each** antipattern, choose one of four verdicts:
 | 18 | **Lifecycle hygiene gap (rot risk)** | 4 | LC03 | **Lifecycle** |
 | 19 | **Silent chain failures** | 2 | WF11 | **Workflow** |
 | 20 | **Monolithic reference dump** | 3 | RF06, RF12 | **References** |
+| 21 | **Client tool lock-in** | 2 | WF12 | **Workflow** |
 
 ---
 
@@ -67,6 +68,7 @@ For **each** antipattern, choose one of four verdicts:
 
 - **#15 Schema drift risk** vs **#13 Mirroring MCP schema**: both use WF22, but differently. #13 is a structural fact (a schema copy lives in SKILL.md). #15 is a lifecycle risk (the schema version is not pinned, drift is not tracked).
 - **#16 Context overfitting** vs **#12 Hardcoded paths**: #12 is a concrete mechanical signal (absolute paths). #16 is a broader pattern (coupling to OS, permissions, environment, implicit requirements). If the only signal is hardcoded paths, do not duplicate the verdict.
+- **#21 Client tool lock-in**: the skill is tied to a concrete tool of one client (`TodoWrite`, `Task` and the like) with no fallback for a client that does not provide it. `CRITICAL` if a preflight stops the skill over the missing tool; `MINOR` if the skill merely assumes the tool without a fallback. Tool availability differs between clients and models — a tool present today may be absent in the next model.
 - **#16 in novice mode:** checked **partially** — only by mechanical portability signals (WF15: preconditions, OS, permissions, packages). Deep overfitting analysis (IN09–IN14: hidden assumptions, self-sufficiency, implicit knowledge) is only available in skill-review-nightmare with a full Intern walkthrough.
 
 ---
@@ -95,3 +97,4 @@ For **each** antipattern, choose one of four verdicts:
 | 18 | Lifecycle hygiene gap (rot risk) | 4 | [NONE / MINOR / CRITICAL / NOT_CHECKED] | [if MINOR: 3–4 words, otherwise `—`] |
 | 19 | Silent chain failures | 2 | [NONE / MINOR / CRITICAL / NOT_CHECKED] | [if MINOR: 3–4 words, otherwise `—`] |
 | 20 | Monolithic reference dump | 3 | [NONE / MINOR / CRITICAL / NOT_CHECKED] | [if MINOR: 3–4 words, otherwise `—`] |
+| 21 | Client tool lock-in | 2 | [NONE / MINOR / CRITICAL / NOT_CHECKED] | [if MINOR: 3–4 words, otherwise `—`] |
