@@ -1,0 +1,8 @@
+{
+  "name": "filters",
+  "description": "Build, edit and explain CDP filters. filter-build turns a description of an audience into a platform-confirmed filter, with a link when one is available or JSON when another tool needs it. filter-explain turns filter JSON back into a business description of its conditions, its limits and anything that could not be interpreted. Nothing is saved as a segment and no project data is changed.",
+  "version": "1.0.0",
+  "author": {
+    "name": "mindbox.cloud"
+  }
+}
