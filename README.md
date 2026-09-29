@@ -1,7 +1,7 @@
 # agent-skills
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-1-blue)](#available-plugins)
+[![Plugins](https://img.shields.io/badge/plugins-2-blue)](#available-plugins)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://claude.ai/code)
 
 Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=en_US) — ready to install.
@@ -13,6 +13,7 @@ Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=
 | Plugin | Description | Skill | Install |
 |--------|-------------|-------|---------|
 | [skill-review](./plugins/skill-review/) | Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist. | `skill-review:skill-review` | see below |
+| [filters](./plugins/filters/) | Build, edit and explain CDP filters. filter-build turns a description of an audience into a platform-confirmed filter, with a link when one is available or JSON when another tool needs it. filter-explain turns filter JSON back into a business description of its conditions, its limits and anything that could not be interpreted. Nothing is saved as a segment and no project data is changed. | `filters:filter-build`, `filters:filter-explain` | see below |
 
 ---
 
