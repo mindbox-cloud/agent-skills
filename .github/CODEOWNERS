@@ -1,0 +1,6 @@
+# Review is required from the team that ships the code, not from whoever is nearest.
+# A path with no owner here needs no approval from us — that is deliberate: this
+# repository takes plugins from several teams, and each answers for its own.
+
+/.claude-plugin/marketplace.json  @mindbox-cloud/ai
+/plugins/mindbox/                 @mindbox-cloud/ai
