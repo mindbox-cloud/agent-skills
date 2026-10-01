@@ -1,7 +1,7 @@
 # agent-skills
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Plugins](https://img.shields.io/badge/plugins-1-blue)](#available-plugins)
+[![Plugins](https://img.shields.io/badge/plugins-2-blue)](#available-plugins)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://claude.ai/code)
 
 Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=en_US) — ready to install.
@@ -13,6 +13,7 @@ Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=
 | Plugin | Description | Skill | Install |
 |--------|-------------|-------|---------|
 | [skill-review](./plugins/skill-review/) | Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist. | `skill-review:skill-review` | see below |
+| [mindbox](./plugins/mindbox/) | Build marketing scenarios and audience filters in a Mindbox project from plain-language requests: flow-create designs and fills a scenario, filter-build builds a platform-confirmed filter, filter-explain reads one back in business terms. Nothing is launched and no filter is saved as a segment. | `mindbox:filter-build`, `mindbox:filter-explain`, `mindbox:flow-create` | see below |
 
 ---
 
