@@ -13,7 +13,7 @@ Documented Claude Code plugins by [mindbox.cloud](https://mindbox.cloud/?locale=
 | Plugin | Description | Skill | Install |
 |--------|-------------|-------|---------|
 | [skill-review](./plugins/skill-review/) | Quick AI reviewer for Agent Skills: checks structure, workflow, references, and links. Clear report without jargon, with a summary from an exhausted data scientist. | `skill-review:skill-review` | see below |
-| [mindbox](./plugins/mindbox/) | Build marketing scenarios and audience filters in a Mindbox project from plain-language requests: flow-create designs and fills a scenario, filter-build builds a platform-confirmed filter, filter-explain reads one back in business terms. Nothing is launched and no filter is saved as a segment. | `mindbox:filter-build`, `mindbox:filter-explain`, `mindbox:flow-create` | see below |
+| [mindbox](./plugins/mindbox/) | Build marketing scenarios, audience filters and emails in a Mindbox project from plain-language requests: flow-create designs and fills a scenario, filter-build builds a platform-confirmed filter, filter-explain reads one back in business terms, email writes an email layout and email-ops previews it, saves it into a campaign and edits the campaign. Nothing is launched or sent to customers, and no filter is saved as a segment. | `mindbox:email`, `mindbox:email-ops`, `mindbox:filter-build`, `mindbox:filter-explain`, `mindbox:flow-create` | see below |
 
 ---
 
