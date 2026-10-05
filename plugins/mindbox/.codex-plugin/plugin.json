@@ -1,0 +1,27 @@
+{
+  "name": "mindbox",
+  "description": "Build marketing scenarios, audience filters and emails in a Mindbox project from plain-language requests: flow-create designs and fills a scenario, filter-build builds a platform-confirmed filter, filter-explain reads one back in business terms, email writes an email layout and email-ops previews it, saves it into a campaign and edits the campaign. Nothing is launched or sent to customers, and no filter is saved as a segment.",
+  "author": {
+    "name": "mindbox.cloud"
+  },
+  "version": "1.2.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Mindbox",
+    "shortDescription": "Build marketing scenarios, audience filters and emails in a Mindbox project",
+    "longDescription": "Describe a campaign in plain language and the skills do the platform work: design and fill a scenario, build an audience filter the platform confirms, read an existing filter back in business terms, write an email layout, preview it and save it into a campaign. Needs an MCP connection to the Mindbox project you work in. Nothing is launched and nothing is sent to customers.",
+    "developerName": "Mindbox",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://mindbox.cloud/",
+    "defaultPrompt": [
+      "Build a welcome scenario for customers who subscribed this week",
+      "Explain what audience this filter actually selects",
+      "Write a promo email and save it into a campaign"
+    ]
+  }
+}

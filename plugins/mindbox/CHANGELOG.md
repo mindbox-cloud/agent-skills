@@ -51,3 +51,17 @@ a test send each wait for your explicit confirmation, and a save is checked by r
 campaign back before it is reported as done.
 
 Emails need the campaign, visual template and gallery tools of the project's MCP server.
+
+## 1.2.0
+
+The plugin now installs in Codex, not only in Claude Code, and carries a storefront entry —
+display name, description and example prompts — for the ChatGPT plugin catalogue. Packaging
+only: the five skills are the same, and so is what they do.
+
+```
+codex plugin marketplace add mindbox-cloud/agent-skills
+codex plugin add mindbox@mindbox-cloud-plugins
+```
+
+Skills keep their names in both clients: `mindbox:flow-create`, `mindbox:filter-build`,
+`mindbox:filter-explain`, `mindbox:email`, `mindbox:email-ops`.
