@@ -65,3 +65,10 @@ codex plugin add mindbox@mindbox-cloud-plugins
 
 Skills keep their names in both clients: `mindbox:flow-create`, `mindbox:filter-build`,
 `mindbox:filter-explain`, `mindbox:email`, `mindbox:email-ops`.
+
+## 1.3.0
+
+- **`/mindbox:whypromo`** — new: explains in plain language why a promotion did not apply to an
+  order, gave no benefit or gave less than expected. Takes the explanation link from the admin panel
+  or a promotion link with an order number, names one reason and who to go to, and gives the detailed
+  version on request. Read-only; it never shows the customer's promo code.
