@@ -1,7 +1,8 @@
 # mindbox
 
 Build marketing scenarios, audience filters and emails in a Mindbox project from
-plain-language requests. Connect the MCP server for the project you want to work with.
+plain-language requests, and explain why a promotion did not apply to an order. Connect the
+MCP server for the project you want to work with.
 
 | Skill | Input | Result |
 |---|---|---|
@@ -10,6 +11,7 @@ plain-language requests. Connect the MCP server for the project you want to work
 | `/mindbox:filter-explain` | Complete filter JSON, or a confirmed build already in the conversation. | A business explanation, including limitations and anything that could not be interpreted. |
 | `/mindbox:email` | A description of the email, or an existing email and the change you want. | An email layout for the Mindbox visual editor: structure, text, images, buttons, styles and personalization, with an unsubscribe link. It invents no links, ids or fonts. |
 | `/mindbox:email-ops` | A campaign to create or open, and what to do with it; works together with `email`. | Campaigns created and edited: name, subject, sender, preheader, UTM, schedule and recipients; images found in or uploaded to the project gallery; a preview of the email; the email saved into the campaign; a test send to the project's test recipients. |
+| `/mindbox:whypromo` | A question from a cashier, a store manager or first-line support about why a promotion did not apply, gave no benefit or gave less than expected: the explanation link from the admin panel, or a promotion link with an order number. | One reason in plain language and who to go to, in your language. |
 
 The scenario skill delegates audience filters to the filter-building skill, which ships
 here alongside it; the email skills use it too when campaign recipients are set by
@@ -20,7 +22,8 @@ project, so the two are used together.
 
 An MCP connection to the project. Scenarios need the flow tools, the wiki tool and the
 entity listing; filters need the filter tools; emails need the campaign, visual template
-and gallery tools. The plugin ships no `.mcp.json`: the server
+and gallery tools; the promotion explanation needs the loyalty tools
+(`loyalty_find_order_calculations`, `loyalty_explain_promotions`, `loyalty_reason_codes`). The plugin ships no `.mcp.json`: the server
 and the access depend on the project and authorize the user.
 
 ## Boundaries
@@ -33,6 +36,9 @@ and the access depend on the project and authorize the user.
   retried.
 - Building a filter does not save a segment or change project data. A link or segment name
   cannot be imported as a filter.
+- The promotion explanation is read-only: it reads the stored calculation of one order and
+  names one reason from it. It does not read promotion settings, the promotion tree or the
+  change history, and never shows the customer's promo code.
 - Every write is checked by reading the result back, block by block, before it is reported
   as done.
 - Reports are written in the language you asked in.
