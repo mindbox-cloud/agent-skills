@@ -72,3 +72,16 @@ Skills keep their names in both clients: `mindbox:flow-create`, `mindbox:filter-
   order, gave no benefit or gave less than expected. Takes the explanation link from the admin panel
   or a promotion link with an order number, names one reason and who to go to, and gives the detailed
   version on request. Read-only; it never shows the customer's promo code.
+
+## 1.4.0
+
+- **`/mindbox:analytics`** — new: answers questions about a project's figures from its
+  analytics data — a metric, why it changed, how a campaign or a flow performed, a summary
+  of a period. Answers follow fixed rules, end with a link to the matching report in the
+  admin menu, and give no benchmark without a named source. Read-only.
+
+## 1.4.1
+
+Setup only: the Mindbox MCP server now has one address for everyone, https://mcp.mindbox.ru.
+Add it as a custom connector and choose the project when you sign in — there is no separate
+server per project anymore. The skills are the same, and so is what they do.
