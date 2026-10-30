@@ -85,3 +85,24 @@ Skills keep their names in both clients: `mindbox:flow-create`, `mindbox:filter-
 Setup only: the Mindbox MCP server now has one address for everyone, https://mcp.mindbox.ru.
 Add it as a custom connector and choose the project when you sign in — there is no separate
 server per project anymore. The skills are the same, and so is what they do.
+
+## 1.5.0
+
+Emails follow the visual editor's own reference and cover saved templates, library blocks
+and segments.
+
+- **`/mindbox:email`**
+  - Reads each element's attributes, defaults and allowed values from the editor's reference
+    served by the `wiki` tool, instead of a copy bundled with the skill. When the reference
+    cannot be read, it stops rather than guesses.
+  - Builds an email from a saved template.
+  - Takes a block from the editor's library and changes its settings; a block shared between
+    emails is inserted as is, without editing its content.
+  - Shows a block or a row only to a segment of customers.
+  - Keeps the segments and custom fonts of an email it edits, and changes shared styles field
+    by field.
+  - Adds an unsubscribe link to every new email, except a transactional one or one whose
+    wrapper or campaign settings carry the link.
+- **`/mindbox:email-ops`** — creates, edits and copies saved templates.
+
+Emails now also need the `wiki` tool of the project's MCP server.

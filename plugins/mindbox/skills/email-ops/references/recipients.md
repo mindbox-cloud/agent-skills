@@ -10,7 +10,11 @@ file and the "exclude inactive/new" toggles are UI only.
 ## Workflow
 
 1. `campaign_get`. For `Automatic`, the audience is set by the flow — say so and do not call
-   `campaign_edit`. Remember the current recipients from the `Recipients` block.
+   `campaign_edit`. If the editability line says the campaign is not edited from here, or its
+   `state` is scheduled or already sending, do not change the recipients either: such a campaign is
+   managed in the editor (the prohibition is in the "`campaign_edit`, `campaign_edit_content`,
+   `campaign_create`" section of `SKILL.md`). Remember the current recipients from the `Recipients`
+   block.
 2. Choose the method by the request:
    - **An existing segment by name** → `segments_list`. Several candidates or nothing —
      show what was found by name and let the user choose; do not ask the person for an id.
@@ -24,3 +28,5 @@ file and the "exclude inactive/new" toggles are UI only.
    the campaign, the method and the audience in words — the segment name or the filter conditions — and
    say that the previous recipients, if any, will be replaced.
 4. `campaign_edit`, then check the `Recipients` block of the response and say that launching the campaign is done in the UI.
+   A version conflict — per item 8 of the "Campaign version chain" in `SKILL.md`, without an
+   automatic retry.
