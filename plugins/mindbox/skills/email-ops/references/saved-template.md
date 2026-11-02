@@ -9,14 +9,13 @@ name, or several — show the candidates and let the user choose. No look-alike.
 
 ## An email by a saved template
 
-`visual_template_get` gives a saved template's blocks as JSX. Its width, background, CSS, shared styles and
-product deduplication are not in it and go separately — `settingsSource`, the saved template. Without it the
-email gets the template's blocks but not its look.
+`visual_template_get` gives a saved template's blocks as JSX; its look comes only through `settingsSource` — the
+saved template.
 
 1. **Target.** §1–§2 of the canonical workflow; a new campaign — "New campaign from scratch" first.
 2. **Reading.** `visual_template_get` with `template` — the saved template.
-3. **Shared styles**, when the generator needs them — `visual_template_theme_get` with `template` — the saved
-   template — and `jsx`: after the save the email has the template's styles, not the campaign's.
+3. **Shared styles**, when the generator needs them — `visual_template_theme_get` on the saved template: after
+   the save the email has the template's styles, not the campaign's.
 4. **Confirmation** — §4, with the shared-styles line "the email's width, background, CSS and shared styles are
    taken from template <name>", plus "and changed by this document" if it has `<Theme>`.
 5. **Save** — §5 with `settingsSource` — the saved template, in this one save only. The next edits are saved
@@ -39,7 +38,7 @@ email gets the template's blocks but not its look.
    the platform defaults.
 4. **The name** of a new template or a copy is the user's: ask for it if the request does not give one.
 5. **Confirmation** before writing JSX — `client_visual_template_edit` with `jsx` and
-   `client_visual_template_create` with `content` `new`: the template's name, the change, the preview status and
+   `client_visual_template_create` with `content` `new`: the template's name, the change and
    the shared-styles line — for a change, the line of §4; for a new template, "the template's width, background,
    CSS and shared styles are taken from <template>" or "… are the platform defaults", plus "and changed by this
    document" if it has `<Theme>`. A rename and a copy are done on the request.

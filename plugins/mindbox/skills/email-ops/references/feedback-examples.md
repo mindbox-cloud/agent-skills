@@ -9,21 +9,7 @@ to `context` without replacing their wording.
 
 **Return:** to the "Skill feedback via MCP feedback" section in `SKILL.md`.
 
-The format is the same everywhere:
-
-```text
-[skill-feedback:v1]
-skill=<email|email-ops>
-skillVersion=<metadata.version of that skill's SKILL.md>
-source=user-report|agent-observation
-problem=<the gist: what blocks the work, what went wrong>
-context=<inputs and requests, how the situation came about, verbatim backend errors>
-area=<layout|save|preview|gallery|personalization|other>
-```
-
-`area` is optional — add it only if the area is obvious. There is no separate field
-for "reproduced/not reproduced": the fact of reproduction is part of
-`context` (run date, one-off campaign, inputs).
+The format is item 1 of the protocol in `SKILL.md`.
 
 ## Example 1. user-report: the layout fell apart during migration
 

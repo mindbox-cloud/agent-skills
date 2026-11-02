@@ -106,3 +106,8 @@ and segments.
 - **`/mindbox:email-ops`** — creates, edits and copies saved templates.
 
 Emails now also need the `wiki` tool of the project's MCP server.
+
+## 1.5.1
+
+- **`/mindbox:email`** and **`/mindbox:email-ops`** reworked for clarity: a preview after every
+  change, and before sending, a short list of what the campaign still needs.

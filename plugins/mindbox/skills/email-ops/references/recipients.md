@@ -4,13 +4,11 @@
 "to a segment", "to a filter" or "to those who …".
 **Return:** to the user with the write result; the live launch stays in the UI.
 
-`campaign_edit` sets the recipients of a bulk campaign as a segment or a filter. A one-off
-file and the "exclude inactive/new" toggles are UI only.
+The "exclude inactive/new" toggles are UI only.
 
 ## Workflow
 
-1. `campaign_get`. For `Automatic`, the audience is set by the flow — say so and do not call
-   `campaign_edit`. If the editability line says the campaign is not edited from here, or its
+1. `campaign_get`. If the editability line says the campaign is not edited from here or is working, or its
    `state` is scheduled or already sending, do not change the recipients either: such a campaign is
    managed in the editor (the prohibition is in the "`campaign_edit`, `campaign_edit_content`,
    `campaign_create`" section of `SKILL.md`). Remember the current recipients from the `Recipients`
@@ -20,13 +18,11 @@ file and the "exclude inactive/new" toggles are UI only.
      show what was found by name and let the user choose; do not ask the person for an id.
    - **The audience is described by conditions, or a segment plus conditions** → the filter-building skill (`filter-build`)
      with `root: User`, `filterablePropertySet: Default` and `includeFilterJson: true`. The result
-     is usable only with `status: ready` and `platform: accepted`. Pass `filterJson` from the
-     `filter_compile_preview` response into `recipientsFilterJson` as is — without edits and without
-     re-escaping. If the filter-building skill is not in your skill listing, do not compose
+     is usable only with `status: ready` and `platform: accepted`. If the filter-building skill is not in your skill listing, do not compose
      the filter yourself: say that recipients by conditions are unavailable and offer a segment.
 3. Confirmation before the write is always separate, even with an explicit request. Name
    the campaign, the method and the audience in words — the segment name or the filter conditions — and
    say that the previous recipients, if any, will be replaced.
 4. `campaign_edit`, then check the `Recipients` block of the response and say that launching the campaign is done in the UI.
-   A version conflict — per item 8 of the "Campaign version chain" in `SKILL.md`, without an
+   A version conflict — per the version-conflict item of the "Campaign version chain" in `SKILL.md`, without an
    automatic retry.
