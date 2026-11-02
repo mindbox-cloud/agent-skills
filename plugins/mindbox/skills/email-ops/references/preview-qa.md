@@ -7,20 +7,12 @@ the invariants in `SKILL.md` are enough; do not open this file.
 in `SKILL.md`, or to the user with the QA result.
 
 ```text
-visual_template_preview(jsx, formatInternalId) → temporary htmlUrl + MCP App widget in a supporting host
+visual_template_preview(jsx, settingsSource) → temporary htmlUrl + MCP App widget in a supporting host
 ```
 
 This is the editor canvas: personalization is filled in with sample values, a link with
 personalization is rendered as `#`, an empty image as a placeholder. The response also contains
 `containerWidth` — the preview panel needs it; do not relay it to the user.
-
-Always pass `formatInternalId` when the format is known: with it, the width, background,
-“Global (CSS) styles” («Глобальные (CSS) стили») and the email's own shared styles are laid under
-the document, and the snapshot shows the email. Otherwise the snapshot shows only the document —
-and it looks just as convincing, which is exactly why QA based on it is deceptive: the divergence
-from the real email is not visible in the picture at all. In this case the tool itself states what
-was rendered, and you must judge by its response, not by the argument you passed: a format with a
-typo and a format with no saved email produce the same snapshot as one not named at all.
 
 - **Preview is no longer an automatic step after every edit.** Each
   `visual_template_preview` call opens a new MCP App widget in a supporting host;
@@ -41,8 +33,8 @@ typo and a format with no saved email produce the same snapshot as one not named
 - **Return preview/editor errors to the generator verbatim; silent repair is forbidden.**
   If preview was not called and the error was returned by `visual_template_save`, also pass it
   to the generator verbatim — it is the backend check of the current JSX in the write path.
-- **A bare `Internal server error` without a line number** — suspect the value format of an
-  attribute (a scalar instead of an object), not the block structure.
+- **A bare `Internal server error` without a line number** is not a value-shape error — those come back
+  named, with the expected shape. Pass it on verbatim; do not retry blindly.
 - **The tool returns a temporary `htmlUrl`, not inline HTML.** When preview is called,
   show the link to the user as a fallback to the MCP App widget. In a host without MCP App, this is
   the only user-facing preview. If preview was not called after
@@ -103,7 +95,7 @@ typo and a format with no saved email produce the same snapshot as one not named
   ```
 
   A write confirmation without a fresh preview is assembled from the canonical set of fields in the
-  "Confirmation" section of the main `SKILL.md` — campaign, A/B variant, formats with Draft spelled out,
+  "Confirmation" section of the main `SKILL.md` — campaign, A/B variant, where the edit goes,
   change, freshness and the mandatory line about the shared styles. Only the choice is added here:
 
   ```text
@@ -128,6 +120,8 @@ typo and a format with no saved email produce the same snapshot as one not named
   check link addresses on the canvas: `href="#"` in the canvas HTML **does not mean** that the link
   is lost or that the JSX has a fake URL — addresses and the presence of `${Message.UnsubscribeLink}`
   must be checked against the JSX (`visual_template_get` / the one passed by Generator), not against the HTML.
+  A link inside a `<SyncBlock>` is not in the JSX, only its caption is on the canvas:
+  `email.topics.unsubscribe_link` in the `visual-template-editor` wiki says what to do.
 
   PNG QA uses the desktop/mobile links from the preview response and visually checks
   content, clipping, the responsive branch and image loading. This is best-effort QA, not
