@@ -9,36 +9,36 @@ name, or several — show the candidates and let the user choose. No look-alike.
 
 ## An email by a saved template
 
-`visual_template_get` gives a saved template's blocks as JSX; its look comes only through `settingsSource` — the
-saved template.
+`visual_template_get` gives a saved template's blocks as JSX; its look comes only from the saved template's
+settings, taken into the preview and the save.
 
 1. **Target.** §1–§2 of the canonical workflow; a new campaign — "New campaign from scratch" first.
-2. **Reading.** `visual_template_get` with `template` — the saved template.
+2. **Reading.** `visual_template_get` of the saved template.
 3. **Shared styles**, when the generator needs them — `visual_template_theme_get` on the saved template: after
    the save the email has the template's styles, not the campaign's.
 4. **Confirmation** — §4, with the shared-styles line "the email's width, background, CSS and shared styles are
    taken from template <name>", plus "and changed by this document" if it has `<Theme>`.
-5. **Save** — §5 with `settingsSource` — the saved template, in this one save only. The next edits are saved
-   without it: the campaign already holds the settings, and passing it again overwrites what the user has
+5. **Save** — §5 with the saved template's settings, in this one save only. The next edits are saved
+   without them: the campaign already holds the settings, and passing them again overwrites what the user has
    changed in the editor since.
 
 ## Changing, creating, copying a saved template
 
-1. **Changing the content** — `visual_template_get` with `template` — the saved template; edits and the preview —
+1. **Changing the content** — `visual_template_get` of the saved template; edits and the preview —
    §3 and the preview rules, the saved template standing wherever they name the campaign's template; the write —
    `client_visual_template_edit`.
-2. **A copy** — "save this email as a template", "a template based on X": `client_visual_template_create` with
-   `content` `fromExisting`, `source` — the campaign's template or X. The editor copies what is saved, settings
+2. **A copy** — "save this email as a template", "a template based on X": `client_visual_template_create` as a copy
+   of the campaign's template or of X. The editor copies what is saved, settings
    included; its JSX is not read. A campaign — `campaign_get` first; several A/B variants, or two versions listed
    (active and draft) — ask which; any campaign state reads. Changes to the content — one confirmation before the
    copy, naming the copy and the change, then item 1 on the copy. The email in this conversation has changes not
-   saved to the campaign — not a copy: item 3 with that JSX and `settingsSource` — the campaign's template.
-3. **From JSX** — `client_visual_template_create` with `content` `new` and the generator's JSX; `settingsSource` —
-   the template whose look the user names, or the campaign's template of item 2. Without one the template gets
+   saved to the campaign — not a copy: item 3 with that JSX and the campaign's template's settings.
+3. **From JSX** — `client_visual_template_create` with a new content from the generator's JSX and the settings of
+   the template whose look the user names, or of the campaign's template of item 2. Without them the template gets
    the platform defaults.
 4. **The name** of a new template or a copy is the user's: ask for it if the request does not give one.
-5. **Confirmation** before writing JSX — `client_visual_template_edit` with `jsx` and
-   `client_visual_template_create` with `content` `new`: the template's name, the change and
+5. **Confirmation** before writing JSX — `client_visual_template_edit` of the JSX and
+   `client_visual_template_create` from JSX: the template's name, the change and
    the shared-styles line — for a change, the line of §4; for a new template, "the template's width, background,
    CSS and shared styles are taken from <template>" or "… are the platform defaults", plus "and changed by this
    document" if it has `<Theme>`. A rename and a copy are done on the request.

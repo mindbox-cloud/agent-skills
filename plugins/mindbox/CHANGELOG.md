@@ -111,3 +111,9 @@ Emails now also need the `wiki` tool of the project's MCP server.
 
 - **`/mindbox:email`** and **`/mindbox:email-ops`** reworked for clarity: a preview after every
   change, and before sending, a short list of what the campaign still needs.
+
+## 1.5.2
+
+- **`/mindbox:email-ops`** takes the parameter names for reading, previewing and saving an email
+  from the tools themselves instead of naming them in its instructions, so it keeps working as
+  the project's MCP server updates its email tools.

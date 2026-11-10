@@ -7,29 +7,29 @@ without PNG links. The preview of every iteration needs only `SKILL.md`.
 - **HTML is not downloaded automatically.** Download HTML only for HTML QA or
   diagnostics where the HTML has to be read. PNG QA does not need HTML: MCP provides the PNG.
   First fix the absolute `<projectRoot>`; do not rely on the runner's cwd. For a
-  campaign, use the name `<mailingInternalId>.html`:
+  campaign, name it by the campaign's `internalId` from `campaign_get`: `<internalId>.html`:
 
   ```bash
   # macOS/Linux
   curl --fail --location --silent --show-error "<htmlUrl>" \
-    --output "<projectRoot>/<mailingInternalId>.html"
+    --output "<projectRoot>/<internalId>.html"
 
   # Windows PowerShell
   & curl.exe --fail --location --silent --show-error "<htmlUrl>" `
-    --output "<projectRoot>/<mailingInternalId>.html"
+    --output "<projectRoot>/<internalId>.html"
   ```
 
   A campaign GUID needs no name sanitizing and prevents conflicts between different
   campaigns. A new QA/debug download of the same campaign replaces the previous local
   file: this is expected; the file represents the last downloaded backend render, not
   necessarily the last JSX edit. Do not use the campaign name alone and do not invent
-  your own name without `mailingInternalId`. If the download failed,
+  your own name without the campaign's `internalId`. If the download failed,
   keep `htmlUrl`, report the `curl` error and do not substitute the HTML.
   Count a download as successful only with exit code `0` and a non-empty output file.
   A download error does not cancel a successful backend preview and does not by itself block
   save. HTML QA is unavailable until the download is repeated successfully; PNG QA via MCP
   does not depend on the HTML download.
-  For a standalone preview without a target campaign and `mailingInternalId`, use
+  For a standalone preview without a target campaign, use
   `<projectRoot>/standalone-preview.html`; it represents the last standalone
   render and must not be used as an artifact of a specific campaign.
 - **A request to check the email or its rendering is already consent to diagnostics:** do not ask separately

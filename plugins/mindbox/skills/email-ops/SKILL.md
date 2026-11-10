@@ -2,7 +2,7 @@
 name: email-ops
 description: Operational actions for Mindbox emails — preview, reading and saving the visual template, saved templates (an email by one, changing, creating, copying), reading/editing campaign metadata and recipients (a segment or a filter), finding gallery assets via MCP, uploading images from the user's machine through the MCP App panel, PNG preview. Use together with the email skill when images, a preview, a check or a write to Mindbox are needed.
 metadata:
-  version: 1.1.1
+  version: 1.1.2
 ---
 
 # email-ops — Mindbox operations for emails
@@ -17,7 +17,7 @@ repair them silently.
 
 JSX, internal IDs and rowVersion are internal execution details. In normal conversation with the
 user say "email", "email layout", "content", "preview" and "saving",
-not JSX, `mailingInternalId`, `variantInternalId`, `formatInternalId`, `rowVersion`
+not JSX, the campaign's `internalId`, `variantInternalId`, `formatInternalId`, `rowVersion`
 or `visualTemplateRowVersion`. Do not show raw JSX or GUIDs unless the user explicitly asked for code,
 export, markup or technical details.
 
@@ -92,7 +92,7 @@ If data is missing:
 
 - there is no mailing internalId for reading/editing by ID — stop and ask;
 - there is no exact target for the save (`variantInternalId` + `formatInternalId` of the version you write into) or no save confirmation — stop and ask;
-- do not invent `mailingInternalId`, `variantInternalId`, `formatInternalId`, a URL, a gallery asset or a `fileName`.
+- do not invent the campaign's `internalId`, `variantInternalId`, `formatInternalId`, a URL, a gallery asset or a `fileName`.
 
 Live send/activate/delete, applying the draft, creating a format and recipients from a one-off file are not
 available in MCP. The agent does not do them on the user's behalf — neither in the editor nor through browser
@@ -158,11 +158,11 @@ tool the email can be built only without this image, by agreement.
   earlier ones show earlier versions.
 - **The preview is the editor canvas, not the email that is sent**: sample values are not customer data, and
   where the canvas differs from the sent email is in the wiki page `email.tags.template`, "In the preview".
-- **`settingsSource` is the template whose settings the email will have once saved, and is passed only when
-  there is one.** Editing a campaign's email — the campaign's template of the version being edited, once it has a saved
-  email; building by a saved template — the saved template; a campaign without a saved email that is not built by a
-  saved template — omit it. Without it the picture shows only the document, and looks every bit as convincing.
-  Pass the address of the version you are editing, unless the user asked to show the other one.
+- **The preview takes the settings of the template the email will have once saved, when there is one.** Editing a
+  campaign's email — the campaign's template of the version being edited, once it has a saved email; building by a
+  saved template — the saved template; a campaign without a saved email that is not built by a saved template — none.
+  Without them the picture shows only the document, and looks every bit as convincing. Take the version you are
+  editing, unless the user asked to show the other one.
 - **Preview errors.** A bare `Internal server error` without a line number is not a value-shape error (those come
   back named): pass it on, do not retry blindly. A sync block not found on preview or save: after the editor's
   text, offer to remove its `<SyncBlock>` or to open the email in the editor.
@@ -177,13 +177,13 @@ The only detailed workflow for reading, editing and writing JSX.
 
 ### 1. Preparing the target
 
-1. Call `campaign_get(mailingInternalId)`. Record the campaign name, `mailingInternalId`, `mailingRowVersion`,
+1. Read the campaign with `campaign_get`. Record its name, `internalId` and `rowVersion`,
    variants, formats and pre-existing validation errors.
 2. Read the editability line above the variants. If it says the email is not edited from here, save nothing
    and tell the user such a campaign is edited in the editor; a preview is still allowed.
 3. The write target is **one version of the email**: `variantInternalId` + `formatInternalId` from those
    `campaign_get` lists. A working automated campaign lists two: the edit goes into the draft; if there is none
-   yet, name the active one's address — the save itself creates the draft and says so.
+   yet, write into the active one — the save itself creates the draft and says so.
 4. Record the editor kind of the target format:
     - `Mindboxeditor` — the visual workflow is allowed;
     - `Rawhtml` with `html: yes` — existing raw HTML, never a visual target: say the email is edited in the
@@ -195,23 +195,23 @@ The only detailed workflow for reading, editing and writing JSX.
 
 ### 2. Reading the initial state
 
-1. `visual_template_get` with `template` — the campaign's template of the target version.
+1. `visual_template_get` of the campaign's template of the target version.
    `visualTemplateRowVersion` belongs to exactly that version: never pass it into another one.
 2. JSX and `visualTemplateRowVersion` came back — an existing visual template; keep the exact JSX as the
    snapshot. If the format has `html: no`, first do attachment recovery: after confirmation, save exactly this
-   JSX with the current `mailingRowVersion` and `visualTemplateRowVersion`, then check it as a first bootstrap
-   save (§5 item 6). No edits and no new version until recovery succeeds.
+   JSX with the campaign's current `rowVersion` and the template's `visualTemplateRowVersion`, then check it as a
+   first bootstrap save (§5 item 6). No edits and no new version until recovery succeeds.
    - **2a.** The task is to build a new email (a mockup, a description, a prompt, an email by a saved template)
      over an existing one — ask first: a replacement or an edit of the existing one. The user decides; pass the
      answer to the generator with the snapshot. The gate is tied to the intent: "let's start over", "redo
      everything" in the middle of editing is the same replacement, however many iterations have passed — and
      the snapshot and the styles are re-read then (`visual_template_get`, `visual_template_theme_get`).
-   - **2b.** Replacement chosen, not by a saved template — `visual_template_theme_get` with `template` — the
-     campaign's template — and `jsx`. The email's styles are its own — the second question is **mandatory**, with
+   - **2b.** Replacement chosen, not by a saved template — `visual_template_theme_get` on the campaign's
+     template with its JSX. The email's styles are its own — the second question is **mandatory**, with
      three answers: build in **these styles** (headings and buttons follow them and change with the whole email),
      **new styles**, or **reset to platform defaults**. Already platform defaults — do not ask.
      The question is mandatory because a full overwrite does not erase the styles: they belong to the format and
-     survive the save. Reset values come from the same tool **with neither argument**. Say plainly that a complete
+     survive the save. Reset values come from the same tool **with no template**. Say plainly that a complete
      "as if nobody had configured it" is not available: the styles stay the email's own, just equal to the
      platform defaults.
 3. `No visual template was saved for` — check the original `campaign_get`:
@@ -279,19 +279,19 @@ An ambiguous target is asked about earlier and separately from the write confirm
 
 ### 5. Save
 
-1. **One edit — one write** into the chosen `formatInternalId`; no second call with the same JSX to another
-   address. `settingsSource` — only in the save that applies a saved template (`references/saved-template.md`).
+1. **One edit — one write** into the chosen version; no second call with the same JSX to another
+   version. A saved template's settings go only into the save that applies it (`references/saved-template.md`).
    Moving styles into the shared ones is **one** save: `<Theme>`, the nodes the styles left and `themeVariant` in
    one document — saved apart, the email is left without a look in between.
-2. An existing template: `mailingRowVersion` and the `visualTemplateRowVersion` of the version you write into.
-   A bootstrap: `mailingRowVersion` only. A draft the save itself creates needs no template version either.
+2. An existing template: the campaign's `rowVersion` and the `visualTemplateRowVersion` of the version you write into.
+   A bootstrap: the campaign's `rowVersion` only. A draft the save itself creates needs no template version either.
 3. Take from the response the new versions, the state and validation errors; the campaign version — per
    "Campaign version chain": it moves on a refusal too.
-4. A refusal "the address points to a version the user does not see" is the same concurrency event as
-   `ChangeConflict` (§7). The tool names the right address — take it from the refusal text, not from memory.
+4. A refusal "the version you named is not the one the user sees" is the same concurrency event as
+   `ChangeConflict` (§7). The tool names the right version — take it from the refusal text, not from memory.
 5. **Partial failure on a working campaign:** the save created a draft but writing the email into it failed;
-   the tool names its `formatInternalId` and a new `mailingRowVersion`. The retry goes to that address with that
-   `mailingRowVersion` and **without** `visualTemplateRowVersion`. Only the save's own response confirms
+   the tool names the draft version and the campaign's new `rowVersion`. The retry goes into that version with
+   that `rowVersion` and **without** `visualTemplateRowVersion`. Only the save's own response confirms
    success here: the draft is a copy of the active version and shows `Mindboxeditor`/`html: yes` before any write.
 6. **After the first bootstrap save** re-read `campaign_get` and find the same `formatInternalId`. Success only
    if it became `Mindboxeditor` with `html: yes`. Stayed `Rawhtml`/`html: no`, disappeared, or unclear — do not
@@ -329,7 +329,7 @@ fresh JSX with the original snapshot from §2, not with the edited JSX.
   the same `formatInternalId`: continue only if it still has `html: no` with `Mindboxeditor` or `Rawhtml`,
   otherwise stop as above. Then `visual_template_get`: a template has appeared — attachment recovery with it and
   its `visualTemplateRowVersion`; still none — show the unchanged target, get a new confirmation, one bootstrap
-  retry with a fresh `mailingRowVersion`. A second conflict — stop.
+  retry with the campaign's fresh `rowVersion`. A second conflict — stop.
 
 ## Changing the template type
 
@@ -367,12 +367,12 @@ field: it has a draft, and on a working campaign the edit goes there without cha
 
 ### Campaign version chain
 
-`rowVersion` of the campaign tools and `mailingRowVersion` of `visual_template_save` are one token, not
+The campaign's `rowVersion` is one token for the campaign tools and `visual_template_save`, not
 `visualTemplateRowVersion`; each write returns the next one.
 
 1. **Not only success moves the version.** A save that created a draft on a working campaign, and a test send
-   from the draft, rewrite the campaign before the outcome is known: if a tool named a `mailingRowVersion`, take
-   it, success or not. So `campaign_send_test` from the draft is a write in this chain too.
+   from the draft, rewrite the campaign before the outcome is known: if a tool named the campaign's new `rowVersion`,
+   take it, success or not. So `campaign_send_test` from the draft is a write in this chain too.
 2. The token lost, the response incomplete, any doubt — re-read `campaign_get` before the next write.
 3. **A version conflict** on `campaign_edit` or `campaign_edit_content` — as `ChangeConflict` (§7, "matches the
    snapshot"), comparing the fields you are changing with the ones read before.
@@ -448,7 +448,7 @@ goes out, not what is in your context.
 1. The edit is not saved yet — save it first, or say plainly that the test goes out without it.
 2. `campaign_test_recipients` → the user explicitly chooses the recipients, even with one candidate.
 3. `campaign_send_test`. Several A/B variants — the user chooses. A working campaign — ask what to show: what
-   customers receive now, or the draft, and pass that version's `formatInternalId`. Relay where the email went
+   customers receive now, or the draft, and send from that version. Relay where the email went
    out from.
 4. "Is not ready for test sending", or the draft is not ready — do not retry: return the error verbatim and look
    up what is missing (subject/sender/content/DKIM) in `campaign_get`. Offer a test from the active version only
