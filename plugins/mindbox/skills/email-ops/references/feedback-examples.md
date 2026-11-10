@@ -44,7 +44,7 @@ skill=email-ops
 skillVersion=1.2.0
 source=agent-observation
 problem=visual_template_save can store the visual template but not attach it to the campaign; from the response it is easy to take this for success.
-context=One-off campaign in a test project, run 2026-09-02. A save with a stale mailingRowVersion returned ChangeConflict with the verbatim text «The template itself WAS stored — only the campaign was not». A repeated campaign_get showed: the template grew to rowVersion=3, while the body attached to the email stayed at rowVersion=2. The subagent meanwhile reported "saved".
+context=One-off campaign in a test project, run 2026-09-02. A save with the campaign's stale `rowVersion` returned ChangeConflict with the verbatim text «The template itself WAS stored — only the campaign was not». A repeated campaign_get showed: the template grew to rowVersion=3, while the body attached to the email stayed at rowVersion=2. The subagent meanwhile reported "saved".
 area=save
 ```
 
