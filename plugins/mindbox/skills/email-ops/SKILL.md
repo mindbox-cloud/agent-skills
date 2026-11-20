@@ -2,7 +2,7 @@
 name: email-ops
 description: Operational actions for Mindbox emails — preview, reading and saving the visual template, saved templates (an email by one, changing, creating, copying), reading/editing campaign metadata and recipients (a segment or a filter), finding gallery assets via MCP, uploading images from the user's machine through the MCP App panel, PNG preview. Use together with the email skill when images, a preview, a check or a write to Mindbox are needed.
 metadata:
-  version: 1.1.2
+  version: 1.1.3
 ---
 
 # email-ops — Mindbox operations for emails

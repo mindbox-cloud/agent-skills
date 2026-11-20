@@ -18,7 +18,7 @@ The "exclude inactive/new" toggles are UI only.
      show what was found by name and let the user choose; do not ask the person for an id.
    - **The audience is described by conditions, or a segment plus conditions** → the filter-building skill (`filter-build`)
      with `root: User`, `filterablePropertySet: Default` and `includeFilterJson: true`. The result
-     is usable only with `status: ready` and `platform: accepted`. If the filter-building skill is not in your skill listing, do not compose
+     is usable only when the platform confirmed it (`FILTER_OK`). If the filter-building skill is not in your skill listing, do not compose
      the filter yourself: say that recipients by conditions are unavailable and offer a segment.
 3. Confirmation before the write is always separate, even with an explicit request. Name
    the campaign, the method and the audience in words — the segment name or the filter conditions — and
