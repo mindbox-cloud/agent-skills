@@ -117,3 +117,27 @@ Emails now also need the `wiki` tool of the project's MCP server.
 - **`/mindbox:email-ops`** takes the parameter names for reading, previewing and saving an email
   from the tools themselves instead of naming them in its instructions, so it keeps working as
   the project's MCP server updates its email tools.
+
+## 1.6.0
+
+Filters run on the filter tools of the project's MCP server: `entities_search`,
+`filter_compile_core` and `filter_json_to_sql_core`. The server is retiring the filter tools
+the earlier skills called, so update the plugin — earlier versions of `/mindbox:filter-build`
+and `/mindbox:filter-explain` stop working once those tools are gone.
+
+- **`/mindbox:filter-build`**
+  - Finds the records a filter needs — brands, segments, promotions and the like — with
+    `entities_search`, all in one step before the draft, and keeps each chosen hit as it came.
+    A search shows up to ten hits per catalogue; when there are more, it narrows the query
+    instead of paging through the catalogue.
+  - Checks and builds the filter in one `filter_compile_core` call. When the platform reports
+    a problem, it applies the suggested repair only if the repair changes how a condition is
+    written, never which condition or record it is.
+  - Reads an existing filter for editing with `filter_json_to_sql_core` and names the
+    conditions it could not read.
+- **`/mindbox:filter-explain`** reads the filter with `filter_json_to_sql_core`, looks up the
+  records it refers to before naming them, and names the conditions it could not read.
+- **`/mindbox:email-ops`** uses a filter for recipients only when the platform confirmed it.
+
+To update in Claude Code: `/plugin marketplace update mindbox-cloud-plugins`, then
+`/plugin update mindbox@mindbox-cloud-plugins`.

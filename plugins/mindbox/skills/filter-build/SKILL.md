@@ -12,12 +12,13 @@ description: >-
   the question is how many or how much, which is a counting task, not a filter.
 argument-hint: "who to select, or the existing filter JSON and the requested change"
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Filter build
 
-Find the connected server's `filter_*` tools and `feedback`. Explain a missing connection.
+Find the connected server's `filter_*` tools, `entities_search` and `feedback`. Explain a missing
+connection.
 Keep all calls on that server: catalogue IDs belong to the project it serves.
 
 Examples below are independent and use synthetic requests. Each names a tool and the
@@ -36,10 +37,13 @@ alongside the workflow below. Reuse pages within this build; follow returned pat
 of reconstructing filenames. Do not preload the full syntax and build guides.
 
 For an edit, retain the complete set of existing conditions, plus the requested changes.
-Reuse a confirmed `finalSql` and selected records from this conversation. Otherwise call
-`filter_json_to_sql` with the complete original JSON; keep its selected records and inspect
-`unlabelled` and `unsupported`. A list URL cannot be imported by these tools: ask for JSON
-if the filter is not already in context. Do not silently drop an unreadable condition.
+Reuse a confirmed `finalSql` and its chosen hits from this conversation. Otherwise call
+`filter_json_to_sql_core` with the complete original JSON as `filterJson` (and `root` when the
+editor is known). Keep the records it confirms for `searchItems`, inspect `Unlabelled`,
+`Unsupported` and its problems, and find each of its "Records to find before compiling" in
+step 5. `NOT_READ` gives no SQL to edit: name the conditions it lists to the user. A list URL
+cannot be imported by these tools: ask for JSON if the filter is not already in context. Do
+not silently drop an unreadable condition.
 
 ## 2. Choose the root and editor
 
@@ -69,7 +73,7 @@ and `filterablePropertySet = "ScenarioInboundEvent"`.
 Use `filterablePropertySet` as the argument name, not `filter_property_set`. Copy document
 paths including underscores and `.md`; `README.md` is uppercase. If a path is unknown, discover
 it with `filter_wiki_ls` at `path = "root"`. Carry the chosen root and property set into subsequent
-wiki, validation and compile calls that accept them. Never widen the editor to bypass a refusal.
+wiki and compile calls that accept them. Never widen the editor to bypass a refusal.
 
 ## 3. Find the meaning and documented constructs
 
@@ -116,34 +120,27 @@ the meaning remains unclear, ask about the point that changes the audience.
 
 ## 5. Resolve catalogue records before writing SQL
 
-When conditions name project records, discover the catalogue types and read the relevant pages:
+When conditions name project records, find every one of them before the draft. One grep over
+`lookup` names the catalogue of each record; then search them all in one turn:
 
-`filter_wiki_ls` at `path = "lookup"`, then `filter_wiki_read` with
-`paths = ["lookup/segment.md"]`, then `filter_search_entities` with `types = ["segment"]`,
-`query = "Example segment"`, `mode = "match"` and a `context` naming the request.
+`filter_wiki_grep` with `pattern = "сегмент|segment|бренд|brand"` over `paths = ["lookup"]`,
+then `entities_search` with `query = "Example segment"` and
+`sources = ["segmentation", "segment"]`.
 
-`query` is the name to find; `context` supplies the surrounding request, not another search
-query or a semantic selection guarantee. Batch names in `queries` when they share types and
-parent; do not send both `query` and `queries`. For custom-field values, `of` is the field
-name. Choose records by meaning, type and parent. A score ranks wording similarity; it is
-not confidence that the record expresses the request.
+`query` is the name as the user put it; `sources` is a JSON array of catalogue names — name
+every plausible catalogue for an ambiguous name. An empty `query` is only for a closed list.
+Read `meta` per catalogue: only a catalogue that answered with nothing found means the record
+is absent; a timed-out, unavailable or forbidden catalogue rules nothing out. When `shown` is
+less than `found`, make `query` more precise. Choose records by meaning, entity, owner and
+parent; hit order ranks wording similarity, not confidence that the record expresses the
+request. A request that names a field takes the value of that field among the hits; a segment
+only when the user speaks of a segment. A segmentation and one segment within it are
+different selections: keep the chosen level and parent.
 
-Browse one catalogue type, or search literal substrings with `mode=list`:
-
-Two separate `filter_search_entities` calls with `mode = "list"` and `pageSize = 20`: one
-browsing `types = ["segment"]` without a query, one narrowing it with `query = "Example"`.
-
-These are two separate searches. For another page of either, repeat the same arguments and
-add `"cursor": "<exact nextCursor from that response>"`. If the cursor is rejected, restart
-the same listing once without `cursor`; report a repeated failure through feedback. Follow
-`nextCursor` as needed; an incomplete or truncated response does not establish absence. For segments, `pageSize` counts
-segmentations. A matching segmentation can include child segments whose names do not
-match the query. A segmentation and one segment within it are different selections: keep
-the chosen level and parent.
-
-Keep every chosen `ref` object, including all `ids`, `type`, `name`, `parent` and `tool` when
-present. Use its canonical name in SQL. Resolve every named catalogue value, including any
-parent the condition needs; do not invent an ID or use an unrelated record to fill a slot.
+Keep every chosen hit of `items[]` whole — `ref`, `entity`, `name`, `ids`, `type`, `owner`,
+`status`, `parent`, `children` — exactly as returned; do not trim, merge or rebuild one.
+Resolve every named catalogue value, including any parent the condition needs; do not invent
+an ID or use an unrelated record to fill a slot.
 
 ## 6. Clarify disputed choices
 
@@ -153,67 +150,49 @@ match needs no confirmation. Reuse answers already given; if the user delegates 
 make it and name the assumption. Establish any omission or alternative with the user before
 building a narrower filter. A failed lookup alone is not permission to drop a condition.
 
-## 7. Draft and validate
+## 7. Draft from the chosen records
 
-Write the complete FilterSQL draft using the documented constructs and chosen records.
-Validate with the same root and property set. In `coverage`, quote the relevant user wording
-and record your chosen representation and why you chose it, including assumptions and agreed omissions.
-It records intent; it is not a proof that the SQL matches the request.
+Write the complete FilterSQL draft using the documented constructs and chosen records. Every
+record is the call of its catalogue with the id from its hit's `ids`, as the wiki's
+`references/calls.md` writes it — for example `BRAND(17)`, `SEGMENT(336, 330)` (segmentation
+id, then segment id), `CUSTOM_FIELD_VALUE(43, 8267)`. Never put a record's name or a bare
+literal in a record's slot. FilterSQL is not SQL: a query starts with `FROM <Root>`, with no
+`SELECT` and no alias for the root. There is no separate validation call: the compile in
+step 8 is the validation.
 
-A standalone example with no catalogue references:
+## 8. Compile the draft once
 
-Call `filter_sql_validate` with the SQL, the editor and one `coverage` entry per requirement:
-
-```json
-{
-  "sql": "FROM User WHERE user.age >= 30",
-  "root": "User",
-  "filterablePropertySet": "Default",
-  "coverage": [{
-    "request": "Customers aged at least 30",
-    "decision": "user.age >= 30",
-    "reason": "At least includes the boundary; age is measured in years."
-  }]
-}
-```
-
-Proceed on `status: valid`. When `reference` lines are returned, match each to the already
-chosen record by type, value, parent and occurrence. Copy its `slot` to that record's
-`selected` entry; keep every returned ID. Slots belong to this draft: refresh them after
-changing SQL. Follow reported `repair` guidance and validate the corrected draft before
-compilation. If validation exposes a missing lookup, resolve it before proceeding.
-
-## 8. Compile the validated draft once
-
-For the no-reference example above:
-
-Call `filter_compile_preview` with the same SQL and editor:
+Call `filter_compile_core` with the draft, the editor and every chosen hit:
 
 ```json
 {
-  "sql": "FROM User WHERE user.age >= 30",
+  "sql": "FROM User WHERE user.age >= 30 AND EXISTS segment AS s:SegmentMembership (s.segmentation = SEGMENTATION(336) AND s.segment = SEGMENT(336, 330))",
   "root": "User",
   "filterablePropertySet": "Default",
-  "selected": [],
+  "searchItems": [{ "...": "every chosen hit from entities_search items[], unchanged" }],
   "includeFilterJson": false
 }
 ```
 
-For a draft with references, fill `selected` with the chosen `ref` objects and their current
-slots. Set `includeFilterJson=true` on this first compile if the user requests JSON or another
-AI agent, tool or skill needs a filter to configure a mechanic. Otherwise return the link.
-A successful result without a list link includes JSON automatically.
+The example only shows where things go: the construct comes from the editor's pages, and the
+server matches the calls to `searchItems` strictly by id. Pass arrays and objects as JSON
+values and `includeFilterJson` as `true`/`false`, never as strings. Set `includeFilterJson=true`
+on this call if the user requests JSON or another AI agent, tool or skill needs a filter to
+configure a mechanic. Otherwise return the link. A successful result without a list link
+includes JSON automatically. Send one compile at a time, each after the previous answer.
 
-A successful compile already includes the platform check: do not compile again to confirm it.
-Require `status: ready` and `platform: accepted`, then compare `finalSql` with the full request.
-Validation and platform acceptance do not establish semantic correctness. Fix a missing,
-extra or misinterpreted condition before handing over the result.
+`FILTER_OK` already includes the platform check: do not compile again to confirm it. Compare
+`finalSql` with the full request. Platform acceptance does not establish semantic
+correctness. Fix a missing, extra or misinterpreted condition before handing over the result.
 
-On failure, follow the specific `repair` and pass returned `feedbackState` unchanged into the
-next compile. Change the draft or selections only when the problem calls for it. A platform
-processing failure or access denial is not a SQL defect: preserve the conditions, report the
-blocker, and retry only after it can be resolved. Never present an unsuccessful preview or a
-stale result after a failed edit as complete.
+On `FILTER_PROBLEMS`, follow each problem's `repair`. A problem with `reference` names the
+record its slot needs: find it with `entities_search` over `reference.catalogues`, rewrite the
+slot with a call from `reference.calls` and the hit's id, add that hit to `searchItems`, and
+compile again. Do not repeat an unchanged failure. A repair changes how a condition is
+written, never which condition or record it is; a different record is a question to the user.
+A platform processing failure or access denial is not a SQL defect: preserve the conditions,
+report the blocker, and retry only after it can be resolved. Never present an unsuccessful
+compile or a stale result after a failed edit as complete.
 
 ## 9. Hand over the result
 
@@ -253,8 +232,8 @@ Technical trace:
 ```
 
 The technical trace is the sequence of calls and responses, not a prose summary of what
-you tried. Include the relevant wiki and catalogue lookups, validation and compile calls,
-with SQL, selected refs, coverage, finalSql, platform verdicts and feedbackState when present.
+you tried. Include the relevant wiki and catalogue lookups and compile calls, with SQL,
+`searchItems`, finalSql, the platform verdict and problems with their repairs when present.
 Remove credentials and personal data. Report only observed behavior. A missing reference
 filter or trace URL does not prevent reporting: include the visible technical trace anyway.
 
